@@ -3,9 +3,9 @@ using System;
 using System.IO;
 using template;
 
-namespace Template {
+namespace Application {
 
-class Game
+class Raytracer
 {
 	// member variables
 	public Surface screen;
@@ -17,17 +17,13 @@ class Game
         camera.UpdatePlane();
 	}
 	// tick: renders one frame
-	public void Tick()
+	public void Render()
 	{
 		//screen.Clear( 0 );
 		//screen.Print( "hello world", 2, 2, 0xffffff );
         
 	}
-
-    public void RenderGL()
-    {
-        camera.debugOutput();
-    }
+ 
 }
 
 } // namespace Template

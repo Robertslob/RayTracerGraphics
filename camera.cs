@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenTK.Graphics;
 using OpenTK;
-using Template;
+using Application;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 

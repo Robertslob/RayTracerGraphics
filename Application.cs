@@ -6,12 +6,12 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 
-namespace Template
+namespace Application
 {
 	public class OpenTKApp : GameWindow
 	{
 		static int screenID;
-		static Game game;
+		static Raytracer raytracer;
 		static bool terminated = false;
 		protected override void OnLoad( EventArgs e )
 		{
@@ -21,11 +21,11 @@ namespace Template
 			GL.Disable( EnableCap.DepthTest );
 			GL.Hint( HintTarget.PerspectiveCorrectionHint, HintMode.Nicest );
 			ClientSize = new Size( 640, 400 );
-			game = new Game();
-			game.screen = new Surface( Width, Height );
-			Sprite.target = game.screen;
-			screenID = game.screen.GenTexture();
-			game.Init();
+			raytracer = new Raytracer();
+			raytracer.screen = new Surface( Width, Height );
+			Sprite.target = raytracer.screen;
+			screenID = raytracer.screen.GenTexture();
+			raytracer.Init();
 		}
 		protected override void OnUnload( EventArgs e )
 		{
@@ -50,7 +50,7 @@ namespace Template
 		protected override void OnRenderFrame( FrameEventArgs e )
 		{
 			// called once per frame; render
-			game.Tick();
+			raytracer.Render();
 			if (terminated) 
 			{
 				Exit();
@@ -59,9 +59,9 @@ namespace Template
 			// convert Game.screen to OpenGL texture
 			GL.BindTexture( TextureTarget.Texture2D, screenID );
 			GL.TexImage2D( TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, 
-						   game.screen.width, game.screen.height, 0, 
+						   raytracer.screen.width, raytracer.screen.height, 0, 
 						   OpenTK.Graphics.OpenGL.PixelFormat.Bgra, 
-						   PixelType.UnsignedByte, game.screen.pixels 
+						   PixelType.UnsignedByte, raytracer.screen.pixels 
 						 );
 			// clear window contents
 			GL.Clear( ClearBufferMask.ColorBufferBit );
@@ -77,17 +77,8 @@ namespace Template
 			GL.TexCoord2( 1.0f, 1.0f ); GL.Vertex2(  1.0f, -1.0f );
 			GL.TexCoord2( 1.0f, 0.0f ); GL.Vertex2(  1.0f,  1.0f );
 			GL.TexCoord2( 0.0f, 0.0f ); GL.Vertex2( -1.0f,  1.0f );
-			GL.End();
-            GL.ClearColor(Color.Black);            
-            GL.Enable(EnableCap.DepthTest);
-            GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-            GL.Enable(EnableCap.LineSmooth);
-            GL.Hint(HintTarget.LineSmoothHint, HintMode.Nicest);
-            GL.Disable(EnableCap.Texture2D);
-            GL.Clear(ClearBufferMask.DepthBufferBit);
+			GL.End();            
 
-           game.RenderGL();
 			// tell OpenTK we're done rendering
 			SwapBuffers();
 		}

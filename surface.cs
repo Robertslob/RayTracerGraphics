@@ -6,7 +6,7 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
  
-namespace Template
+namespace Application
 {
 	public class Sprite
 	{
