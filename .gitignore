@@ -10,7 +10,6 @@ packages/System.Numerics.Vectors.4.1.1-beta-23516/ref/xamarinmac20/_._
 Properties/AssemblyInfo.cs
 *.csproj
 template.csproj.user
-*.sln
 template.v12.suo
 obj/Debug/template.pdb
 *.exe
