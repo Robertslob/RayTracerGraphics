@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace template
+namespace Application 
 {
     public abstract class Primitive
     {
@@ -87,6 +87,20 @@ namespace template
                 return Vector3.Dot(position - r.Origin, normal) / dotproduct;
             }
             return int.MaxValue;
+        }
+    }
+
+    //whitted-style ray tracer only has point light (in its basic form)
+    public class Light
+    {
+        Vector3 location;
+        //color should be stored using floats according to the assignment 
+        Vector3 intensity;
+
+        public Light(Vector3 location, Vector3 intensity)
+        {
+            this.location = location;
+            this.intensity = intensity;
         }
     }
 

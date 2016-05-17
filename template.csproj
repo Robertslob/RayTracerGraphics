@@ -70,6 +70,7 @@
     <Compile Include="Raytracer.cs" />
     <Compile Include="Material.cs" />
     <Compile Include="Primitive.cs" />
+    <Compile Include="Scene.cs" />
     <Compile Include="surface.cs" />
     <Compile Include="Application.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

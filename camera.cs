@@ -9,18 +9,18 @@ using Application;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 
-namespace template
+namespace Application
 {
     public class Camera
     {
 
-        Vector3 position;
-        Vector3 direction;
+        public Vector3 position;
+        public Vector3 direction;
         // vector Direction?
-        Vector3 p1, p2, p3;
-        Vector3 up, left;
-        int distancePlane = 10;
-        int maxViewingDistance = 9000;
+        public Vector3 p1, p2, p3;
+        public Vector3 up, left;
+        public int distancePlane = 10;
+        public int maxViewingDistance = 9000;
 
         public Camera(Vector3 p, Vector3 direction)
         {
@@ -40,50 +40,9 @@ namespace template
             p3 = position + direction * distancePlane - left + up;
         }
 
-        public void cameraMovement()
-        {
-            var state = OpenTK.Input.Keyboard.GetState();
-            Matrix4 m = Matrix4.CreateRotationY(-0.02f);
-            Matrix4 m2 = Matrix4.CreateRotationY(0.02f);
-            if (state[Key.Q])
-            {
-                direction = Vector3.Transform(direction, m);
-            }
-            if (state[Key.E])
-            {
-                direction = Vector3.Transform(direction, m2);
-            }
-            if (state[Key.R])
-            {
-                distancePlane++;
-            }
-            if (state[Key.F])
-            {
-                distancePlane--;
-                if (distancePlane < 1) distancePlane = 1;
-            }
-            if (state[Key.A])
-            {
-                position -= Vector3.UnitX;
-            }
-            if (state[Key.D])
-            {
-                position += Vector3.UnitX;
-            }
-            if (state[Key.W])
-            {
-                position += Vector3.UnitZ;
-            }
-            if (state[Key.S])
-            {
-                position -= Vector3.UnitZ;
-            }
-            direction.Normalize();
-            UpdatePlane();
-        }
+        
         public void debugOutput()
         {
-            cameraMovement();
 
             Console.WriteLine("[pos: '" + position + "', dir: '" + direction + "'");
 

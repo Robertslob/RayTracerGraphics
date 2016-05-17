@@ -1,29 +1,28 @@
 ﻿using OpenTK;
 using System;
 using System.IO;
-using template;
 
 namespace Application {
 
-class Raytracer
-{
-	// member variables
-	public Surface screen;
-    public Camera camera;
-	// initialize
-	public void Init()
-	{
-        camera = new Camera(Vector3.Zero, Vector3.UnitZ);
-        camera.UpdatePlane();
-	}
-	// tick: renders one frame
-	public void Render()
-	{
-		//screen.Clear( 0 );
-		//screen.Print( "hello world", 2, 2, 0xffffff );
-        
-	}
- 
-}
+    //owns the scene, camera and surface. has the render method which is called by the application every frame
+    class Raytracer
+    {
+	    public Surface screen;
+        public Camera camera;
+        public Scene scene;
 
-} // namespace Template
+	    public Camera Init()
+	    {
+            camera = new Camera(Vector3.Zero, Vector3.UnitZ);
+            camera.UpdatePlane();
+            return camera;
+	    }
+
+	    // this guy is called once every frame
+	    public void Render()
+	    {	
+            //use camera to display stuff on the screen
+	    } 
+    }
+
+} 
