@@ -1,4 +1,5 @@
 ﻿using OpenTK;
+using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,8 +34,39 @@ namespace template
         }
 
         public override float intersects(Ray r)
+        {            
+            float b = 2*(Vector3.Dot(r.Direction, (r.Origin - position)));
+            float c = (r.Origin - position).LengthSquared - radius*radius;
+
+            if (b * b - 4 * c > 0)
+            {
+                
+                float cs = (float)Math.Sqrt((double)(b * b - 4*c));
+                float distance1 = -b + cs;
+                float distance2 = -b - cs;
+                return Math.Min(distance1, distance2) / 2;
+            }
+            else if (b * b - 4 * c == 0)
+            {
+                return -b / 2;
+            }
+            else
+            {
+                return int.MaxValue;
+            }
+        }
+
+        public void debugOutput()
         {
-            throw new NotImplementedException();
+            GL.Begin(PrimitiveType.LineLoop);
+            for (int i = 0; i <= 300; i++)
+            {
+                double angle = 2 * Math.PI * i / 300.0;
+                double x = Math.Cos(angle) * radius;
+                double y = Math.Sin(angle) * radius;
+                GL.Vertex2(x + position.X, y + position.Z);
+            }
+            GL.End();
         }
     }
 
@@ -49,8 +81,12 @@ namespace template
 
         public override float intersects(Ray r)
         {
-            float d = Vector3.Dot(position - r.Origin, normal) / Vector3.Dot(r.Direction, normal);
-            return d;
+            float dotproduct = Vector3.Dot(r.Direction, normal);
+
+            if (dotproduct > 0) {
+                return Vector3.Dot(position - r.Origin, normal) / dotproduct;
+            }
+            return int.MaxValue;
         }
     }
 
