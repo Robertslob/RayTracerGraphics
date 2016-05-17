@@ -6,12 +6,19 @@ using OpenTK.Graphics.OpenGL;
 
 namespace Application {
 
+
+
     //owns the scene, camera and surface. has the render method which is called by the application every frame
     class Raytracer
     {
 	    public Surface screen;
         public Camera camera;
         public Scene scene;
+
+        int CreateColor(int red, int green, int blue)
+        {
+            return (red << 16) + (green << 8) + blue;
+        }         
 
    
 	    public Camera Init()
@@ -22,10 +29,20 @@ namespace Application {
             return camera;
 	    }
 
-	    // this guy is called once every frame
+        // this guy is called once every frame and draws everything on the screen -- CORE OF THE RAYTRACER!
 	    public void Render()
 	    {
+            //draw the debug
             debugOutput();
+
+            //raytrace color for each pixel (hardcoded screen resolution!)
+            for (int y = 0; y < 512; y++)
+            {
+                for (int x = 0; x < 512; x++)
+                {
+                    screen.pixels[y * 1024 + x] = 255;
+                }
+            }
 	    }
 
         public void debugOutput()
@@ -33,19 +50,16 @@ namespace Application {
             //this should be made procedural to the screensize
             GL.Viewport(512, 0, 512, 512);
 
-            Console.WriteLine("[pos: '" + camera.position + "', dir: '" + camera.direction + "'");
+            //Console.WriteLine("[pos: '" + camera.position + "', dir: '" + camera.direction + "'");
 
             GL.MatrixMode(MatrixMode.Projection);
             Matrix4 m = Matrix4.CreateScale(1 / 16.0f);
-            GL.LoadMatrix(ref m);
+            GL.LoadMatrix(ref m); 
             GL.Color3(0.8f, 0.3f, 0.3f);
 
-            //Draw the camera
-            GL.Begin(PrimitiveType.Triangles);
-
-            GL.Vertex2((camera.position.Xz + camera.left.Xz));
-            GL.Vertex2((camera.position.Xz + camera.direction.Xz));
-            GL.Vertex2((camera.position.Xz - camera.left.Xz));
+            //Draw the camera -- must be a point according to the assignment
+            GL.Begin(PrimitiveType.Points);
+            GL.Vertex2(camera.position.Xz);
             GL.End();
 
             //Draw camera end
@@ -62,19 +76,21 @@ namespace Application {
             GL.Color3(0.4f, 1.0f, 0.4f);
             GL.Vertex2(camera.p1.Xz);
             GL.Vertex2(camera.p3.Xz);
+
+            
             
             GL.End();
 
-            //draw scene
+            
             foreach (Primitive primitive in scene.allPrimitives)
             {
-                primitive.debugOutput();
+                primitive.debugOutput();                
             }            
         }
 
 
     }
-    /*
+    /* ZINO's DEBUG DEEL DAT MISSCHIEN HANDIG KAN ZIJN LATER
             Sphere p = new Sphere(Vector3.UnitZ * 8f, 5f, new Material());
             p.debugOutput();
             Sphere sphere = new Sphere(new Vector3(20, 0, 30), 29f, new Material());

@@ -57,18 +57,21 @@ namespace Application
 		protected override void OnRenderFrame( FrameEventArgs e )
 		{
             //we process user input to move the camera
-            cameraMovement();
+            cameraMovement();           
+
 			//we render with our raytracer
 			raytracer.Render();
 
             // tell OpenTK we're done rendering
             SwapBuffers();
 
+            
 			if (terminated) 
 			{
 				Exit();
 				return;
 			}
+
 			// convert Game.screen to OpenGL texture
 			GL.BindTexture( TextureTarget.Texture2D, screenID );
 			GL.TexImage2D( TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, 
@@ -91,16 +94,8 @@ namespace Application
 			GL.TexCoord2( 1.0f, 0.0f ); GL.Vertex2(  1.0f,  1.0f );
 			GL.TexCoord2( 0.0f, 0.0f ); GL.Vertex2( -1.0f,  1.0f );
 			GL.End();
-            GL.ClearColor(Color.Black);
-            GL.Enable(EnableCap.DepthTest);
-            GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             GL.Enable(EnableCap.LineSmooth);
-            GL.Hint(HintTarget.LineSmoothHint, HintMode.Nicest);
-            GL.Disable(EnableCap.Texture2D);
-            GL.Clear(ClearBufferMask.DepthBufferBit);
-
-			
+            GL.Disable(EnableCap.Texture2D);			
 		}
 
         public void cameraMovement()
