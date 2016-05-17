@@ -12,6 +12,15 @@ namespace Application
         private List<Primitive> allPrimitives = new List<Primitive>();
         private List<Light> allLights = new List<Light>();
 
+        public Scene()
+        {
+            //all the primitives that are present in our scene
+            allPrimitives.Add( new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material()) );
+            allPrimitives.Add( new Sphere(new Vector3(0, 0, 0), 1, new Material()));
+            allPrimitives.Add( new Sphere(new Vector3(-3, 0, 0), 1, new Material()));
+            allPrimitives.Add( new Sphere(new Vector3(3, 0, 0), 1, new Material()));
+        }
+
         public intersection intersectScene(Ray ray)
         {
             //very bad way to make this work...
@@ -30,6 +39,8 @@ namespace Application
             //returns the closest primitive if there is an intersection, else it returns a self made intersection...
             return new intersection(closestDistance, closestPrimitive);
         }
+
+
     }
 
     //contains the result of an intersection
