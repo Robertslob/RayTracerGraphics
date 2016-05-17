@@ -9,8 +9,8 @@ namespace Application
 {
     class Scene
     {
-        private List<Primitive> allPrimitives = new List<Primitive>();
-        private List<Light> allLights = new List<Light>();
+        public List<Primitive> allPrimitives = new List<Primitive>();
+        public List<Light> allLights = new List<Light>();
 
         public Scene()
         {

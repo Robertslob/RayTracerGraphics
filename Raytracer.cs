@@ -13,10 +13,11 @@ namespace Application {
         public Camera camera;
         public Scene scene;
 
+   
 	    public Camera Init()
 	    {
             scene = new Scene();
-            camera = new Camera(Vector3.Zero, Vector3.UnitZ);
+            camera = new Camera(new Vector3(0, 0, -10), Vector3.UnitZ);
             camera.UpdatePlane();
             return camera;
 	    }
@@ -29,11 +30,13 @@ namespace Application {
 
         public void debugOutput()
         {
+            //this should be made procedural to the screensize
+            GL.Viewport(512, 0, 512, 512);
 
             Console.WriteLine("[pos: '" + camera.position + "', dir: '" + camera.direction + "'");
 
             GL.MatrixMode(MatrixMode.Projection);
-            Matrix4 m = Matrix4.CreateScale(1 / 32.0f);
+            Matrix4 m = Matrix4.CreateScale(1 / 16.0f);
             GL.LoadMatrix(ref m);
             GL.Color3(0.8f, 0.3f, 0.3f);
 
@@ -63,9 +66,15 @@ namespace Application {
             GL.End();
 
             //draw scene
+            foreach (Primitive primitive in scene.allPrimitives)
+            {
+                primitive.debugOutput();
+            }            
+        }
 
 
-            /*
+    }
+    /*
             Sphere p = new Sphere(Vector3.UnitZ * 8f, 5f, new Material());
             p.debugOutput();
             Sphere sphere = new Sphere(new Vector3(20, 0, 30), 29f, new Material());
@@ -96,9 +105,5 @@ namespace Application {
                 GL.End();
             }
              */
-        }   
-
-
-    }
 
 } 

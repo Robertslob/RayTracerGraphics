@@ -21,6 +21,7 @@ namespace Application
 
         //Returns lengte van ray r;
         public abstract float intersects(Ray r);
+        public abstract void debugOutput();
     }
 
     public class Sphere : Primitive
@@ -56,7 +57,7 @@ namespace Application
             }
         }
 
-        public void debugOutput()
+        public override void debugOutput()
         {
             GL.Begin(PrimitiveType.LineLoop);
             for (int i = 0; i <= 300; i++)
@@ -87,6 +88,10 @@ namespace Application
                 return Vector3.Dot(position - r.Origin, normal) / dotproduct;
             }
             return int.MaxValue;
+        }
+
+        public override void debugOutput()
+        {            
         }
     }
 

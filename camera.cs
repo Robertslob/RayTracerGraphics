@@ -14,7 +14,7 @@ namespace Application
         // vector Direction?
         public Vector3 p1, p2, p3;
         public Vector3 up, left;
-        public int distancePlane = 10;
+        public float distancePlane = 3;
         public int maxViewingDistance = 9000;
 
         public Camera(Vector3 p, Vector3 direction)

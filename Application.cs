@@ -22,7 +22,6 @@ namespace Application
 			GL.Enable( EnableCap.Texture2D );
 			GL.Disable( EnableCap.DepthTest );
 			GL.Hint( HintTarget.PerspectiveCorrectionHint, HintMode.Nicest );
-			ClientSize = new Size( 640, 400 );
 			raytracer = new Raytracer();
 			raytracer.screen = new Surface( Width, Height );
 			Sprite.target = raytracer.screen;
@@ -118,11 +117,11 @@ namespace Application
             }
             if (state[Key.R])
             {
-                camera.distancePlane++;
+                camera.distancePlane += 0.5f;
             }
             if (state[Key.F])
             {
-                camera.distancePlane--;
+                camera.distancePlane -= 0.5f;
                 if (camera.distancePlane < 1) camera.distancePlane = 1;
             }
             if (state[Key.A])
