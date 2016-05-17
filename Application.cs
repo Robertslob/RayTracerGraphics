@@ -22,6 +22,7 @@ namespace Application
 			GL.Enable( EnableCap.Texture2D );
 			GL.Disable( EnableCap.DepthTest );
 			GL.Hint( HintTarget.PerspectiveCorrectionHint, HintMode.Nicest );
+			ClientSize = new Size( 1024, 512 );
 			raytracer = new Raytracer();
 			raytracer.screen = new Surface( Width, Height );
 			Sprite.target = raytracer.screen;
