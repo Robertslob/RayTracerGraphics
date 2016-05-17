@@ -81,6 +81,14 @@ namespace template
             GL.Vertex2((position.Xz - left.Xz) * r);
             GL.End();
 
+            Plane p = new Plane(Vector3.UnitZ, Vector3.UnitZ * 0.8f, new Material());
+            Ray rayray = new Ray();
+            rayray.Origin = position;
+            rayray.Direction = direction;
+
+            float dist = p.intersects(rayray);
+            Console.WriteLine(p.intersects(rayray));
+
             Vector2 svx = (position.Xz - p1.Xz) * -30;
             Vector2 svy = (position.Xz - p3.Xz) * -30;
             GL.Begin(PrimitiveType.Lines);
@@ -91,8 +99,23 @@ namespace template
             GL.Color3(0.4f, 1.0f, 0.4f);
             GL.Vertex2(p1.Xz * r);
             GL.Vertex2(p3.Xz * r);
+            GL.Vertex2(position.Xz * r);
+            GL.Vertex2((position.Xz + direction.Xz * dist * 32) * r);
             GL.End();
 
+            
+
+
+
+
         }
+    }
+
+    public class Ray
+    {
+        public Vector3 Origin;
+        public Vector3 Direction;
+        public int depth; //Voor weerkaatsing enzo.
+        
     }
 }
