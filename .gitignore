@@ -1,0 +1,14 @@
+.vs/template/v14/.suo
+*.config
+assets/font.png
+clean.bat
+*.dll
+packages/System.Numerics.Vectors.4.1.1-beta-23516/lib/MonoAndroid10/_._
+*.nupkg
+packages/System.Numerics.Vectors.4.1.1-beta-23516/ref/xamarinmac20/_._
+*._
+Properties/AssemblyInfo.cs
+*.csproj
+template.csproj.user
+*.sln
+template.v12.suo
