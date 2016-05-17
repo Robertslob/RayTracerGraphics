@@ -71,12 +71,23 @@ namespace Template
 			GL.MatrixMode( MatrixMode.Projection );
 			GL.LoadIdentity();
 			// draw screen filling quad
+            GL.Color3(0, 0, 0);
 			GL.Begin( PrimitiveType.Quads );
 			GL.TexCoord2( 0.0f, 1.0f ); GL.Vertex2( -1.0f, -1.0f );
 			GL.TexCoord2( 1.0f, 1.0f ); GL.Vertex2(  1.0f, -1.0f );
 			GL.TexCoord2( 1.0f, 0.0f ); GL.Vertex2(  1.0f,  1.0f );
 			GL.TexCoord2( 0.0f, 0.0f ); GL.Vertex2( -1.0f,  1.0f );
 			GL.End();
+            GL.ClearColor(Color.Black);            
+            GL.Enable(EnableCap.DepthTest);
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.Enable(EnableCap.LineSmooth);
+            GL.Hint(HintTarget.LineSmoothHint, HintMode.Nicest);
+            GL.Disable(EnableCap.Texture2D);
+            GL.Clear(ClearBufferMask.DepthBufferBit);
+
+           game.RenderGL();
 			// tell OpenTK we're done rendering
 			SwapBuffers();
 		}
