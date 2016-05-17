@@ -32,9 +32,7 @@ namespace Application {
         // this guy is called once every frame and draws everything on the screen -- CORE OF THE RAYTRACER!
 	    public void Render()
 	    {
-            //draw the debug
-            debugOutput();
-
+            screen.Clear(0);
             //raytrace color for each pixel (hardcoded screen resolution!)
             for (int y = 0; y < 512; y++)
             {
@@ -43,12 +41,17 @@ namespace Application {
                     screen.pixels[y * 1024 + x] = 255;
                 }
             }
+
+            //draw the debug
+            debugOutput();            
 	    }
 
         public void debugOutput()
         {
             //this should be made procedural to the screensize
             GL.Viewport(512, 0, 512, 512);
+            //we dont want to texture our lines
+            GL.Disable(EnableCap.Texture2D);
 
             //Console.WriteLine("[pos: '" + camera.position + "', dir: '" + camera.direction + "'");
 
@@ -75,17 +78,18 @@ namespace Application {
 
             GL.Color3(0.4f, 1.0f, 0.4f);
             GL.Vertex2(camera.p1.Xz);
-            GL.Vertex2(camera.p3.Xz);
-
-            
-            
+            GL.Vertex2(camera.p3.Xz);            
             GL.End();
-
-            
+                        
             foreach (Primitive primitive in scene.allPrimitives)
             {
                 primitive.debugOutput();                
-            }            
+            }
+
+            //we want to texture stuff again and restor our viewport
+            GL.Enable(EnableCap.Texture2D);
+            GL.Viewport(0, 0, 1024, 512);
+
         }
 
 

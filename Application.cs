@@ -29,14 +29,12 @@ namespace Application
 			screenID = raytracer.screen.GenTexture();
 			camera = raytracer.Init();
 		}
-
 		protected override void OnUnload( EventArgs e )
 		{
 			// called upon app close
 			GL.DeleteTextures( 1, ref screenID );
 			Environment.Exit( 0 ); // bypass wait for key on CTRL-F5
 		}
-
 		protected override void OnResize( EventArgs e )
 		{
 			// called upon window resize
@@ -45,33 +43,28 @@ namespace Application
 			GL.LoadIdentity();
 			GL.Ortho( -1.0, 1.0, -1.0, 1.0, 0.0, 4.0 );
 		}
-
 		protected override void OnUpdateFrame( FrameEventArgs e )
 		{
 			// called once per frame; app logic
 			var keyboard = OpenTK.Input.Keyboard.GetState();
 			if (keyboard[OpenTK.Input.Key.Escape]) this.Exit();
 		}
-
-        // called once per frame
 		protected override void OnRenderFrame( FrameEventArgs e )
 		{
-            //we process user input to move the camera
-            cameraMovement();           
 
-			//we render with our raytracer
+			// called once per frame; render
 			raytracer.Render();
 
-            // tell OpenTK we're done rendering
+            cameraMovement();
+
             SwapBuffers();
 
-            
+
 			if (terminated) 
 			{
 				Exit();
 				return;
 			}
-
 			// convert Game.screen to OpenGL texture
 			GL.BindTexture( TextureTarget.Texture2D, screenID );
 			GL.TexImage2D( TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, 
@@ -87,15 +80,15 @@ namespace Application
 			GL.MatrixMode( MatrixMode.Projection );
 			GL.LoadIdentity();
 			// draw screen filling quad
-            GL.Color3(0, 0, 0);
 			GL.Begin( PrimitiveType.Quads );
 			GL.TexCoord2( 0.0f, 1.0f ); GL.Vertex2( -1.0f, -1.0f );
 			GL.TexCoord2( 1.0f, 1.0f ); GL.Vertex2(  1.0f, -1.0f );
 			GL.TexCoord2( 1.0f, 0.0f ); GL.Vertex2(  1.0f,  1.0f );
-			GL.TexCoord2( 0.0f, 0.0f ); GL.Vertex2( -1.0f,  1.0f );
+            GL.TexCoord2( 0.0f, 0.0f ); GL.Vertex2( -1.0f,  1.0f );
 			GL.End();
+			// tell OpenTK we're done rendering
+			
             GL.Enable(EnableCap.LineSmooth);
-            GL.Disable(EnableCap.Texture2D);			
 		}
 
         public void cameraMovement()
