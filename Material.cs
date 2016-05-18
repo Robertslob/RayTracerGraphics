@@ -10,8 +10,8 @@ namespace Application
     public struct Material
     {
         public Vector3 color;
-        float refraction;
-        float reflection;
+        public float refraction;
+        public float reflection;
 
         public Material(Vector3 color, float refraction, float reflection)
         {

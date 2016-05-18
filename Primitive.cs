@@ -89,7 +89,7 @@ namespace Application
         {
             float dotproduct = Vector3.Dot(r.Direction, normal);
 
-            if (dotproduct > 0) {
+            if (dotproduct != 0) {
                 return Vector3.Dot(position - r.Origin, normal) / dotproduct;
             }
             return int.MaxValue;
@@ -107,9 +107,9 @@ namespace Application
     //whitted-style ray tracer only has point light (in its basic form)
     public class Light
     {
-        Vector3 location;
+        public Vector3 location;
         //color should be stored using floats according to the assignment 
-        Vector3 intensity;
+        public Vector3 intensity;
 
         public Light(Vector3 location, Vector3 intensity)
         {

@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using OpenTK.Graphics.OpenGL;
+using System.Drawing;
 
 
 namespace Application {
@@ -17,7 +18,7 @@ namespace Application {
 
         int CreateColor(int red, int green, int blue)
         {
-            return (red << 16) + (green << 8) + blue;
+            return (Math.Min(red, 255) << 16) + (Math.Min(green, 255) << 8) + Math.Min(blue, 255);
         }         
 
    
@@ -34,25 +35,41 @@ namespace Application {
 	    {
             screen.Clear(0);
             //raytrace color for each pixel (hardcoded screen resolution!)
+            
             for (int y = 0; y < 512; y++)
             {
                 for (int x = 0; x < 512; x++)
                 {
                     Ray currentray = camera.getRay(x, y);
-                    Intersection intersected = scene.intersectScene(currentray);
-                    Vector3 color = new Vector3(0, 0, 0);
-
-                    if (intersected.intersectedPrimitive != null)
-                    {
-                        color = intersected.intersectedPrimitive.material.color;
-                    }                    
+                    Vector3 color = PrimaryRay(currentray);
                     
-                    screen.pixels[y * 1024 + x] = CreateColor((int)color.X, (int)color.Y, (int)color.Z);
+                    screen.pixels[y * 1024 + x] = CreateColor((int)(color.X * 255), (int)(color.Y * 255),(int)( color.Z * 255));
                 }
             }
-            //draw the debug
-            debugOutput();            
+            //draw the debug                    
 	    }
+
+        private Vector3 PrimaryRay(Ray r, int depth = 5)
+        {
+            Intersection intersected = scene.intersectScene(r);
+            Vector3 color = new Vector3(0, 0, 0);
+
+            Primitive primitive = intersected.intersectedPrimitive;
+            if (primitive != null)
+            {
+                Material material = primitive.material;
+                Vector3 dest = r.Origin + r.Direction * intersected.intersectionDistance;                
+                color = material.color;
+                if (material.reflection > 0 && depth > 0)
+                {
+                    Vector3 reflV = r.mirror(primitive.getNormal(dest));
+                    Ray nray = new Ray(dest + reflV * 0.01f, reflV);
+                    color = color * (1 - material.reflection) + PrimaryRay(nray, depth - 1) * material.reflection;
+                }                
+            }
+
+            return color;
+        }
 
         public void debugOutput()
         {
@@ -122,13 +139,9 @@ namespace Application {
 
             Vector3 dest = (pos + ray.Direction * intersected.intersectionDistance);            
             GL.Vertex2(pos.Xz);
-            GL.Vertex2(dest.Xz); 
-        }
+            GL.Vertex2(dest.Xz);
 
-
-
-    }
-    /* ZINO's DEBUG DEEL DAT MISSCHIEN HANDIG KAN ZIJN LATER
+            /* ZINO's DEBUG DEEL DAT MISSCHIEN HANDIG KAN ZIJN LATER
             if (intersected.intersectedPrimitive != null && depth > 0)
             {
                 Vector3 m = ray.mirror(intersected.intersectedPrimitive.getNormal(dest));                
@@ -136,5 +149,11 @@ namespace Application {
                 debugRay(dest, nray, depth - 1);
             }
              */
+        }
+
+
+
+    }
+    
 
 } 
