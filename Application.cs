@@ -78,7 +78,7 @@ namespace Application
             GL.ClearColor(Color.Black);
             GL.Enable(EnableCap.Texture2D);
             GL.Disable(EnableCap.DepthTest);
-            GL.Color3(1f, 1f, 1f);
+            GL.Color3(1.0f, 1.0f, 1.0f);
 
             // convert Game.screen to OpenGL texture
             GL.BindTexture(TextureTarget.Texture2D, screenID);
@@ -171,7 +171,8 @@ namespace Application
             if (state[Key.Q])
             {
                 camera.distancePlane -= 0.5f;
-                if (camera.distancePlane < 1) camera.distancePlane = 1;
+                if (camera.distancePlane < 1)
+                    camera.distancePlane = 1;
             }   
 
 
@@ -182,7 +183,7 @@ namespace Application
 		public static void Main( string[] args ) 
 		{ 
 			// entry point
-			using (OpenTKApp app = new OpenTKApp()) { app.Run( 30.0, 0.0 ); }
+			using (OpenTKApp app = new OpenTKApp()) { app.Run( 30.0f, 0.0f ); }
 		}
 	}
 }

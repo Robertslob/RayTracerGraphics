@@ -2,3 +2,6 @@
 /obj
 *.sdf
 template.v12.suo
+*.suo
+.vs/template/v14/.suo
+.vs/template/v14/.suo

@@ -157,7 +157,7 @@ namespace Application {
                 if (intersected.intersectedPrimitive.material.reflection > 0)
                 {
                     Vector3 m = ray.mirror(intersected.intersectedPrimitive.getNormal(dest));
-                    Ray nray = new Ray(dest + m * 5f, m);
+                    Ray nray = new Ray(dest + m * 5.0f, m);
                     debugRay(dest, nray, depth - 1);
                 }
             }

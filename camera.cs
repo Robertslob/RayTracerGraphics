@@ -14,7 +14,7 @@ namespace Application
         // vector Direction?
         public Vector3 p1, p2, p3;
         public Vector3 up, left;
-        public float distancePlane = 3;
+        public float distancePlane = 3.0f;
         public int maxViewingDistance = 9000;
 
         public Camera(Vector3 p, Vector3 direction)
@@ -41,7 +41,8 @@ namespace Application
         //Get ray from camera to 'pixel' on viewplane.
         public Ray getRay(int x, int y)
         {
-            Vector3 PoS = p2 + ((float)x/512) * (p3 - p2) + ((float)y/512) * (p1 - p2);
+            float div = 1 / 512.0f;
+            Vector3 PoS = p2 + (x*div) * (p3 - p2) + (y*div) * (p1 - p2); //Kan niet zo he, die hoofdletters, waar staat het voor? pos normaal?
             return new Ray(position, (PoS - position).Normalized());  
         }
     }

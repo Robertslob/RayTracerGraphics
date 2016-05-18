@@ -24,10 +24,12 @@ namespace Application
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             GL.Begin(PrimitiveType.Quads);
-            float u1 = (x * 2 - 0.5f * scale * bitmap.width) / target.width - 1;
-            float v1 = 1 - (y * 2 - 0.5f * scale * bitmap.height) / target.height;
-            float u2 = ((x + 0.5f * scale * bitmap.width) * 2) / target.width - 1;
-            float v2 = 1 - ((y + 0.5f * scale * bitmap.height) * 2) / target.height;
+            float divWidth = 1.0f / target.width;
+            float divHeight = 1.0f / target.height;
+            float u1 = (x * 2 - 0.5f * scale * bitmap.width) * divWidth - 1;
+            float v1 = 1 - (y * 2 - 0.5f * scale * bitmap.height) * divHeight;
+            float u2 = ((x + 0.5f * scale * bitmap.width) * 2) * divWidth - 1;
+            float v2 = 1 - ((y + 0.5f * scale * bitmap.height) * 2) *divHeight;
             GL.TexCoord2(0.0f, 1.0f); GL.Vertex2(u1, v2);
             GL.TexCoord2(1.0f, 1.0f); GL.Vertex2(u2, v2);
             GL.TexCoord2(1.0f, 0.0f); GL.Vertex2(u2, v1);
