@@ -42,7 +42,7 @@ namespace Application
         public Ray getRay(int x, int y)
         {
             float div = 1 / 512.0f;
-            Vector3 PoS = p2 + (x*div) * (p3 - p2) + (y*div) * (p1 - p2); //Kan niet zo he, die hoofdletters, waar staat het voor? pos normaal?
+            Vector3 PoS = p2 + (x * div) * (p3 - p2) + (y * div) * (p1 - p2); //Kan niet zo he, die hoofdletters, waar staat het voor? pos normaal?
             return new Ray(position, (PoS - position).Normalized());  
         }
     }

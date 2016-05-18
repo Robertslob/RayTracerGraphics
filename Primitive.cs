@@ -38,12 +38,12 @@ namespace Application
         public override float intersects(Ray r)
         {            
             float b = 2*(Vector3.Dot(r.Direction, (r.Origin - position)));
-            float c = (r.Origin - position).LengthSquared - radius*radius;
+            float c = Vector3.Dot((r.Origin - position),(r.Origin - position)) - radius * radius;
 
             if (b * b - 4 * c > 0)
             {
                 
-                float cs = (float)Math.Sqrt((double)(b * b - 4*c));
+                float cs = (float)Math.Sqrt((double)(b * b - 4*c));                
                 float distance1 = -b + cs;
                 float distance2 = -b - cs;
                 return Math.Min(distance1, distance2) / 2;
