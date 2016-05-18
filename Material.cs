@@ -9,8 +9,16 @@ namespace Application
 {
     public struct Material
     {
-        Vector3 color;
+        public Vector3 color;
         float refraction;
         float reflection;
+
+        public Material(Vector3 color, float refraction, float reflection)
+        {
+            this.color = color;
+            this.refraction = refraction;
+            this.reflection = reflection;
+        }
+        
     }
 }

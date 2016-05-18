@@ -129,6 +129,14 @@ namespace Application
             {
                 camera.position -= Vector3.UnitZ;
             }
+            if (state[Key.Z])
+            {
+                camera.position += Vector3.UnitY;
+            }
+            if (state[Key.X])
+            {
+                camera.position -= Vector3.UnitY;
+            }
             camera.direction.Normalize();
             camera.UpdatePlane();
         }

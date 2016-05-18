@@ -15,13 +15,13 @@ namespace Application
         public Scene()
         {
             //all the primitives that are present in our scene
-            allPrimitives.Add( new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material()) );
-            allPrimitives.Add( new Sphere(new Vector3(0, 0, 0), 1, new Material()));
-            allPrimitives.Add( new Sphere(new Vector3(-3, 0, 0), 1, new Material()));
-            allPrimitives.Add( new Sphere(new Vector3(3, 0, 0), 1, new Material()));
+            //allPrimitives.Add(new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material(new Vector3(1, 1, 1), 0.5f, 0.5f)));
+            allPrimitives.Add( new Sphere( new Vector3(0, 1, 0), 1, new Material(new Vector3(0, 1, 0), 0.5f, 0.5f) ));
+            allPrimitives.Add(new Sphere(new Vector3(-3, 1, 0), 1, new Material(new Vector3(1, 0, 0), 0.5f, 0.5f)));
+            allPrimitives.Add(new Sphere(new Vector3(3, 1, 0), 1, new Material(new Vector3(0, 0, 1), 0.5f, 0.5f)));
         }
 
-        public intersection intersectScene(Ray ray)
+        public Intersection intersectScene(Ray ray)
         {
             //very bad way to make this work...
             float closestDistance = 1000000;
@@ -37,20 +37,20 @@ namespace Application
                 }
             }
             //returns the closest primitive if there is an intersection, else it returns a self made intersection...
-            return new intersection(closestDistance, closestPrimitive);
+            return new Intersection(closestDistance, closestPrimitive);
         }
 
 
     }
 
     //contains the result of an intersection
-    class intersection{
-        float intersectionDistance;
+    class Intersection{
+        public float intersectionDistance;
         //I'm not sure this is what they mean in the assignment..
-        Primitive intersectedPrimitive;
+        public Primitive intersectedPrimitive;
         //perhaps also the normal of the point of intersection should be stored here according to the assignment
 
-        public intersection(float distance, Primitive primitive)
+        public Intersection(float distance, Primitive primitive)
         {
             this.intersectionDistance = distance;
             this.intersectedPrimitive = primitive;

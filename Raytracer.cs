@@ -34,14 +34,17 @@ namespace Application {
 	    {
             screen.Clear(0);
             //raytrace color for each pixel (hardcoded screen resolution!)
-            for (int y = 0; y < 512; y++)
+            /*for (int y = 0; y < 512; y++)
             {
                 for (int x = 0; x < 512; x++)
                 {
-                    screen.pixels[y * 1024 + x] = 255;
+                    Ray currentray = camera.getRay(x, y, 512, 512);
+                    Console.WriteLine("the " + x.ToString() + "th ray of row " + y.ToString() + " has direction: " + currentray.Direction.ToString());
+                    Intersection intersected = scene.intersectScene(currentray);
+                    Vector3 color = intersected.intersectedPrimitive.material.color;;
+                    screen.pixels[y * 1024 + x] = CreateColor((int)color.X, (int)color.Y, (int)color.Z);
                 }
-            }
-
+            }*/
             //draw the debug
             debugOutput();            
 	    }
@@ -56,7 +59,7 @@ namespace Application {
             //Console.WriteLine("[pos: '" + camera.position + "', dir: '" + camera.direction + "'");
 
             GL.MatrixMode(MatrixMode.Projection);
-            Matrix4 m = Matrix4.CreateScale(1 / 16.0f);
+            Matrix4 m = Matrix4.CreateScale(1 / 32.0f);
             GL.LoadMatrix(ref m); 
             GL.Color3(0.8f, 0.3f, 0.3f);
 
@@ -75,6 +78,22 @@ namespace Application {
 
             GL.Vertex2(camera.position.Xz);
             GL.Vertex2((camera.position.Xz + sv2));
+
+            GL.Color3(0.2f, 1.0f, 0.7f);
+
+            //draw the rays of the 255 row with an interval of 64
+            for (int y = 255; y < 256; y++)
+            {
+                for (int x = 0; x <= 512; x += 64)
+                {
+                    Ray currentray = camera.getRay(x, y);
+                    Intersection intersected = scene.intersectScene(currentray);
+
+                    GL.Vertex2(camera.position.Xz);
+                    GL.Vertex2((camera.position.Xz + currentray.Direction.Xz * intersected.intersectionDistance));
+                   
+                }
+            }
 
             GL.Color3(0.4f, 1.0f, 0.4f);
             GL.Vertex2(camera.p1.Xz);
