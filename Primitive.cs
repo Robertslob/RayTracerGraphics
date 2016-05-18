@@ -63,9 +63,9 @@ namespace Application
             GL.Begin(PrimitiveType.LineLoop);
             for (int i = 0; i <= 300; i++)
             {
-                double angle = 2 * Math.PI * i / 300.0;
-                double x = Math.Cos(angle) * radius;
-                double y = Math.Sin(angle) * radius;
+                float angle = (float)(2 * Math.PI * i) / 300.0f;
+                float x = (float)Math.Cos(angle) * radius;
+                float y = (float)Math.Sin(angle) * radius;
                 GL.Vertex2(x + position.X, y + position.Z);
             }
             GL.End();
