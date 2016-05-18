@@ -49,44 +49,38 @@ namespace Application
 			var keyboard = OpenTK.Input.Keyboard.GetState();
 			if (keyboard[OpenTK.Input.Key.Escape]) this.Exit();
 		}
+        // called once per frame; render
 		protected override void OnRenderFrame( FrameEventArgs e )
 		{
-
-			// called once per frame; render
-			
-
-            cameraMovement();
-
+            //update the camera position and direction
+            cameraMovement();           
             
-
-
+            //check if we have to exit
 			if (terminated) 
 			{
 				Exit();
 				return;
 			}
-
-            raytracer.Render();
-
-			// convert Game.screen to OpenGL texture
-			
-			// clear window contents
-
             
+            //renders the rays
+            raytracer.Render();			
+			
+			// clear window contents            
+            GL.Clear(ClearBufferMask.ColorBufferBit);
 
-			GL.Clear( ClearBufferMask.ColorBufferBit );
 			// setup camera
 			GL.MatrixMode( MatrixMode.Modelview );
 			GL.LoadIdentity();
 			GL.MatrixMode( MatrixMode.Projection );
 			GL.LoadIdentity();
-			// draw screen filling quad
 
+            //does something i don't know
             GL.ClearColor(Color.Black);
             GL.Enable(EnableCap.Texture2D);
             GL.Disable(EnableCap.DepthTest);
             GL.Color3(1f, 1f, 1f);
 
+            // convert Game.screen to OpenGL texture
             GL.BindTexture(TextureTarget.Texture2D, screenID);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba,
                            raytracer.screen.width, raytracer.screen.height, 0,
@@ -94,20 +88,24 @@ namespace Application
                            PixelType.UnsignedByte, raytracer.screen.pixels
                          );
 
+
+            // draw screen filling quad
 			GL.Begin( PrimitiveType.Quads );
 			GL.TexCoord2( 0.0f, 1.0f ); GL.Vertex2( -1.0f, -1.0f );
 			GL.TexCoord2( 1.0f, 1.0f ); GL.Vertex2(  1.0f, -1.0f );
 			GL.TexCoord2( 1.0f, 0.0f ); GL.Vertex2(  1.0f,  1.0f );
             GL.TexCoord2( 0.0f, 0.0f ); GL.Vertex2( -1.0f,  1.0f );
 			GL.End();
-			// tell OpenTK we're done rendering
 
+            //reverts the stuff i don't know
             GL.Enable(EnableCap.DepthTest);
             GL.Disable(EnableCap.Texture2D);
             GL.Clear(ClearBufferMask.DepthBufferBit);
 
+            //renders the debug
             raytracer.debugOutput();
 
+            //tell openTK we are gonna work on or next frame
             SwapBuffers();
 		}
 
