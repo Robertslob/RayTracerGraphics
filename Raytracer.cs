@@ -73,8 +73,7 @@ namespace Application
                 Vector3 dest = r.Origin + r.Direction * intersected.intersectionDistance;
 
                 Vector3 illumination = scene.calculateillumination(dest, primitive);
-                color = new Vector3(material.color.X * illumination.X, material.color.Y * illumination.Y, material.color.Z * illumination.Z);
-                
+                color = material.getpatternColor(dest) * illumination;            
                 
 
                 if (material.reflection > 0 && depth > 0)
