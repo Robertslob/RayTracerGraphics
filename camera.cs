@@ -39,9 +39,10 @@ namespace Application
         }
 
         //Get ray from camera to 'pixel' on viewplane.
+        float div = 1 / 512.0f;
         public Ray getRay(int x, int y)
         {
-            Vector3 PoS = p2 + ((float)x/512) * (p3 - p2) + ((float)y/512) * (p1 - p2);
+            Vector3 PoS = p2 + (x * div) * (p3 - p2) + (y * div) * (p1 - p2);
             return new Ray(position, (PoS - position).Normalized());  
         }
     }

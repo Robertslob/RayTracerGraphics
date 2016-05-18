@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using OpenTK.Graphics.OpenGL;
 using System.Drawing;
+using System.Threading.Tasks;
 
 
 namespace Application {
@@ -31,21 +32,30 @@ namespace Application {
 	    }
 
         // this guy is called once every frame and draws everything on the screen -- CORE OF THE RAYTRACER!
+        int a = 0;
 	    public void Render()
 	    {
+            a++;
+            scene.allPrimitives[1].position.X = (float)Math.Sin((double)a/20.0d) * 6;
+            scene.allPrimitives[1].position.Z = (float)Math.Cos((double)a / 20.0d) * 6;           
+            scene.allPrimitives[1].material.color.X = 0.5f + (float)Math.Sin((double)a/10.0d) * 0.5f;
+            scene.allPrimitives[1].material.color.Y = 0.5f + (float)Math.Sin((double)a / 10.0d) * 0.5f;
+            scene.allPrimitives[1].material.color.Z = 0.5f + (float)Math.Sin((double)a / 20.0d) * 0.5f;
             screen.Clear(0);
             //raytrace color for each pixel (hardcoded screen resolution!)
-            
-            for (int y = 0; y < 512; y++)
+
+            Parallel.For(0, 512, (y) =>
+            //for (int y = 0; y < 512; y++)
             {
                 for (int x = 0; x < 512; x++)
                 {
                     Ray currentray = camera.getRay(x, y);
                     Vector3 color = PrimaryRay(currentray);
-                    
-                    screen.pixels[y * 1024 + x] = CreateColor((int)(color.X * 255), (int)(color.Y * 255),(int)( color.Z * 255));
+
+                    screen.pixels[y * 1024 + x] = CreateColor((int)(color.X * 255), (int)(color.Y * 255), (int)(color.Z * 255));
                 }
             }
+            );
             //draw the debug                    
 	    }
 
@@ -157,7 +167,7 @@ namespace Application {
                 if (intersected.intersectedPrimitive.material.reflection > 0)
                 {
                     Vector3 m = ray.mirror(intersected.intersectedPrimitive.getNormal(dest));
-                    Ray nray = new Ray(dest + m * 5f, m);
+                    Ray nray = new Ray(dest + m * 0.05f, m);
                     debugRay(dest, nray, depth - 1);
                 }
             }
