@@ -36,7 +36,9 @@ namespace Application
         }
 
         public override float intersects(Ray r)
-        {            
+        {
+            if (!canIntersect(r))
+                return int.MaxValue;
             float b = 2*(Vector3.Dot(r.Direction, (r.Origin - position)));
             float c = Vector3.Dot((r.Origin - position),(r.Origin - position)) - radius * radius;
 
@@ -46,16 +48,27 @@ namespace Application
                 float cs = (float)Math.Sqrt((double)(b * b - 4*c));                
                 float distance1 = -b + cs;
                 float distance2 = -b - cs;
-                return Math.Min(distance1, distance2) / 2;
+                return Math.Min(distance1, distance2) / 2.0f;
             }
             else if (b * b - 4 * c == 0)
             {
-                return -b / 2;
+                return -b / 2.0f;
             }
             else
             {
                 return int.MaxValue;
             }
+        }
+
+        public bool canIntersect(Ray r)
+        {
+            Vector3 c = position - r.Origin;
+            float t = Vector3.Dot(c, r.Direction);
+            Vector3 q = c - t * r.Direction;
+            float p2 = Vector3.Dot(q, q);
+            if (p2 > radius)
+                return false;
+            return true;
         }
 
         public override void debugOutput()

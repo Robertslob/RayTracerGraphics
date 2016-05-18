@@ -27,9 +27,10 @@ namespace Application
             //very bad way to make this work...
             float closestDistance = 1000000;
             Primitive closestPrimitive = null;
+            float currentDistance;
 
             foreach(Primitive primitive in allPrimitives){
-                float currentDistance = primitive.intersects(ray);
+                currentDistance = primitive.intersects(ray);
                 //we loop over all primitives and return the intersect of the closest one which we intersect
                 if (closestDistance > currentDistance && currentDistance > 0)
                 {
@@ -46,6 +47,7 @@ namespace Application
 
     //contains the result of an intersection
     class Intersection{
+
         public float intersectionDistance;
         //I'm not sure this is what they mean in the assignment..
         public Primitive intersectedPrimitive;
