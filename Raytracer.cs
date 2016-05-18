@@ -34,17 +34,22 @@ namespace Application {
 	    {
             screen.Clear(0);
             //raytrace color for each pixel (hardcoded screen resolution!)
-            /*for (int y = 0; y < 512; y++)
+            for (int y = 0; y < 512; y++)
             {
                 for (int x = 0; x < 512; x++)
                 {
-                    Ray currentray = camera.getRay(x, y, 512, 512);
-                    Console.WriteLine("the " + x.ToString() + "th ray of row " + y.ToString() + " has direction: " + currentray.Direction.ToString());
+                    Ray currentray = camera.getRay(x, y);
                     Intersection intersected = scene.intersectScene(currentray);
-                    Vector3 color = intersected.intersectedPrimitive.material.color;;
+                    Vector3 color = new Vector3(0, 0, 0);
+
+                    if (intersected.intersectedPrimitive != null)
+                    {
+                        color = intersected.intersectedPrimitive.material.color;
+                    }                    
+                    
                     screen.pixels[y * 1024 + x] = CreateColor((int)color.X, (int)color.Y, (int)color.Z);
                 }
-            }*/
+            }
             //draw the debug
             debugOutput();            
 	    }
@@ -60,7 +65,7 @@ namespace Application {
             GL.Disable(EnableCap.Texture2D);            
 
             GL.MatrixMode(MatrixMode.Projection);
-            Matrix4 m = Matrix4.CreateScale(1 / 32.0f);
+            Matrix4 m = Matrix4.CreateScale(1 / 16.0f);
             GL.LoadMatrix(ref m); 
             
 
@@ -117,48 +122,18 @@ namespace Application {
 
             Vector3 dest = (pos + ray.Direction * intersected.intersectionDistance);            
             GL.Vertex2(pos.Xz);
-            GL.Vertex2(dest.Xz);
-            
-            if (intersected.intersectedPrimitive != null && depth > 0)
-            {
-                Vector3 m = ray.mirror(intersected.intersectedPrimitive.getNormal(dest));                
-                Ray nray = new Ray(dest + m * 5f, m);
-                debugRay(dest, nray, depth - 1);
-            }
+            GL.Vertex2(dest.Xz); 
         }
 
 
 
     }
     /* ZINO's DEBUG DEEL DAT MISSCHIEN HANDIG KAN ZIJN LATER
-            Sphere p = new Sphere(Vector3.UnitZ * 8f, 5f, new Material());
-            p.debugOutput();
-            Sphere sphere = new Sphere(new Vector3(20, 0, 30), 29f, new Material());
-            sphere.debugOutput();
-
-            Vector3 viewPlaneXZ = (camera.p3 - camera.p2).Normalized();
-
-            GL.Color3(0.5f, 0.5f, 0.5f);
-
-            for (int i = 0; i < 30; i++)
+            if (intersected.intersectedPrimitive != null && depth > 0)
             {
-                Vector3 rd = ((camera.p2 + (viewPlaneXZ * ((i) / 15.0f))) - camera.position);
-
-                rd.Y = 0;
-                rd.Normalize();
-
-                Ray r = new Ray(camera.position, rd);
-                float dist = Math.Min(p.intersects(r), sphere.intersects(r));
-
-                GL.Begin(PrimitiveType.Lines);
-
-                if (dist > 0)
-                {
-                    GL.Vertex2(camera.position.Xz);
-                    GL.Vertex2(camera.position.Xz + rd.Xz * dist);
-                }
-
-                GL.End();
+                Vector3 m = ray.mirror(intersected.intersectedPrimitive.getNormal(dest));                
+                Ray nray = new Ray(dest + m * 5f, m);
+                debugRay(dest, nray, depth - 1);
             }
              */
 
