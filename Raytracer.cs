@@ -54,7 +54,7 @@ namespace Application {
             //this should be made procedural to the screensize
 
             GL.PushAttrib(AttribMask.ViewportBit); //Push current viewport attributes to a sta ck
-            GL.Viewport(0, 0, 512, 512); //Create a new viewport bottom left for the debug output.
+            GL.Viewport(512, 0, 512, 512); //Create a new viewport bottom left for the debug output.
 
             //we dont want to texture our lines
             GL.Disable(EnableCap.Texture2D);            
@@ -87,7 +87,7 @@ namespace Application {
             //draw the rays of the 255 row with an interval of 64
             for (int y = 255; y < 256; y++)
             {
-                for (int x = 0; x <= 512; x += 512)
+                for (int x = 0; x <= 512; x += 64)
                 {
                     Ray currentray = camera.getRay(x, y);
                     debugRay(camera.position, currentray, 10);
@@ -108,7 +108,7 @@ namespace Application {
             //we want to texture stuff again and restor our viewport
             GL.Enable(EnableCap.Texture2D);
             GL.PopAttrib();//Reset to the old viewport.
-            //GL.Viewport(0, 0, 1024, 512);
+            GL.Viewport(0, 0, 1024, 512);
         }
 
         private void debugRay(Vector3 pos, Ray ray, int depth)
