@@ -58,12 +58,19 @@ namespace Application {
             if (primitive != null)
             {
                 Material material = primitive.material;
-                Vector3 dest = r.Origin + r.Direction * intersected.intersectionDistance;                
                 color = material.color;
+
+                //with the dest we can calulate the luminicity (hoe je dat ook schrijft) of a pixel by shadowraying
+                Vector3 dest = r.Origin + r.Direction * intersected.intersectionDistance;      
+          
+                //shadowray the fuck out of the dest
+                
                 if (material.reflection > 0 && depth > 0)
                 {
                     Vector3 reflV = r.mirror(primitive.getNormal(dest));
+                    //the 0.01f is a small delta to prevent the reflection hitting the object that reflected the ray again
                     Ray nray = new Ray(dest + reflV * 0.01f, reflV);
+                    //combination of the color of the object and the color our reflectionray returns
                     color = color * (1 - material.reflection) + PrimaryRay(nray, depth - 1) * material.reflection;
                 }                
             }
@@ -141,14 +148,17 @@ namespace Application {
             GL.Vertex2(pos.Xz);
             GL.Vertex2(dest.Xz);
 
-            /* ZINO's DEBUG DEEL DAT MISSCHIEN HANDIG KAN ZIJN LATER
+            
             if (intersected.intersectedPrimitive != null && depth > 0)
             {
-                Vector3 m = ray.mirror(intersected.intersectedPrimitive.getNormal(dest));                
-                Ray nray = new Ray(dest + m * 5f, m);
-                debugRay(dest, nray, depth - 1);
+                if (intersected.intersectedPrimitive.material.reflection > 0)
+                {
+                    Vector3 m = ray.mirror(intersected.intersectedPrimitive.getNormal(dest));
+                    Ray nray = new Ray(dest + m * 5f, m);
+                    debugRay(dest, nray, depth - 1);
+                }
             }
-             */
+             
         }
 
 

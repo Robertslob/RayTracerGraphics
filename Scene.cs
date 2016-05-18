@@ -16,7 +16,7 @@ namespace Application
         {
             //all the primitives that are present in our scene
             allLights.Add(new Light(new Vector3(10, -2, 10), new Vector3(10, 10, 10)));
-            allPrimitives.Add(new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material(new Vector3(1, 1, 0), 0f, 0.9f)));
+            allPrimitives.Add(new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material(new Vector3(0.5f, 0.5f, 0.5f), 0f, 0.2f)));
             allPrimitives.Add(new Sphere( new Vector3(0, 1, 0), 1, new Material(new Vector3(0, 255, 0), 0.5f, 0.2f) ));
             allPrimitives.Add(new Sphere(new Vector3(-3, 1, 0), 1, new Material(new Vector3(255, 0, 0), 0.5f, 0.0f)));
             allPrimitives.Add(new Sphere(new Vector3(3, 1, 0), 1, new Material(new Vector3(0, 0, 255), 0.5f, 0.0f)));
