@@ -38,10 +38,11 @@ namespace Application
             p3 = position + direction * distancePlane - left + up;
         }
 
+        //Get ray from camera to 'pixel' on viewplane.
         public Ray getRay(int x, int y)
         {
             Vector3 PoS = p2 + ((float)x/512) * (p3 - p2) + ((float)y/512) * (p1 - p2);
-            return new Ray(position, PoS - position);  
+            return new Ray(position, (PoS - position).Normalized());  
         }
     }
     
@@ -56,6 +57,12 @@ namespace Application
         {
             this.Origin = position;
             this.Direction = direction;
+        }
+
+        public Vector3 mirror(Vector3 normal)
+        {
+            Vector3 b = Vector3.Dot(Direction, normal) * normal;
+            return Direction - 2 * b;
         }
         
     }

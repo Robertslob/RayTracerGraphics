@@ -25,12 +25,12 @@ namespace Application
         {
             //very bad way to make this work...
             float closestDistance = 1000000;
-            Primitive closestPrimitive = new Sphere(new Vector3(0,0,0), 0.0f, new Material());
+            Primitive closestPrimitive = null;
 
             foreach(Primitive primitive in allPrimitives){
                 float currentDistance = primitive.intersects(ray);
                 //we loop over all primitives and return the intersect of the closest one which we intersect
-                if (closestDistance > currentDistance)
+                if (closestDistance > currentDistance && currentDistance > 0)
                 {
                     closestDistance = currentDistance;
                     closestPrimitive = primitive;

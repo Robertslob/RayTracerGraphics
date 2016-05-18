@@ -52,18 +52,20 @@ namespace Application {
         public void debugOutput()
         {
             //this should be made procedural to the screensize
-            GL.Viewport(512, 0, 512, 512);
-            //we dont want to texture our lines
-            GL.Disable(EnableCap.Texture2D);
 
-            //Console.WriteLine("[pos: '" + camera.position + "', dir: '" + camera.direction + "'");
+            GL.PushAttrib(AttribMask.ViewportBit); //Push current viewport attributes to a sta ck
+            GL.Viewport(0, 0, 512, 512); //Create a new viewport bottom left for the debug output.
+
+            //we dont want to texture our lines
+            GL.Disable(EnableCap.Texture2D);            
 
             GL.MatrixMode(MatrixMode.Projection);
             Matrix4 m = Matrix4.CreateScale(1 / 32.0f);
             GL.LoadMatrix(ref m); 
-            GL.Color3(0.8f, 0.3f, 0.3f);
+            
 
             //Draw the camera -- must be a point according to the assignment
+            GL.Color3(0.8f, 0.2f, 0.2f);
             GL.Begin(PrimitiveType.Points);
             GL.Vertex2(camera.position.Xz);
             GL.End();
@@ -72,6 +74,7 @@ namespace Application {
             Vector2 sv1 = (camera.position.Xz - camera.p1.Xz) * -30;
             Vector2 sv2 = (camera.position.Xz - camera.p3.Xz) * -30;
 
+            GL.Color3(0.8f, 0.5f, 0.5f);
             GL.Begin(PrimitiveType.Lines);
             GL.Vertex2(camera.position.Xz);
             GL.Vertex2((camera.position.Xz + sv1));
@@ -84,13 +87,10 @@ namespace Application {
             //draw the rays of the 255 row with an interval of 64
             for (int y = 255; y < 256; y++)
             {
-                for (int x = 0; x <= 512; x += 64)
+                for (int x = 0; x <= 512; x += 512)
                 {
                     Ray currentray = camera.getRay(x, y);
-                    Intersection intersected = scene.intersectScene(currentray);
-
-                    GL.Vertex2(camera.position.Xz);
-                    GL.Vertex2((camera.position.Xz + currentray.Direction.Xz * intersected.intersectionDistance));
+                    debugRay(camera.position, currentray, 10);
                    
                 }
             }
@@ -107,9 +107,26 @@ namespace Application {
 
             //we want to texture stuff again and restor our viewport
             GL.Enable(EnableCap.Texture2D);
-            GL.Viewport(0, 0, 1024, 512);
-
+            GL.PopAttrib();//Reset to the old viewport.
+            //GL.Viewport(0, 0, 1024, 512);
         }
+
+        private void debugRay(Vector3 pos, Ray ray, int depth)
+        {
+            Intersection intersected = scene.intersectScene(ray);
+
+            Vector3 dest = (pos + ray.Direction * intersected.intersectionDistance);            
+            GL.Vertex2(pos.Xz);
+            GL.Vertex2(dest.Xz);
+            
+            if (intersected.intersectedPrimitive != null && depth > 0)
+            {
+                Vector3 m = ray.mirror(intersected.intersectedPrimitive.getNormal(dest));                
+                Ray nray = new Ray(dest + m * 5f, m);
+                debugRay(dest, nray, depth - 1);
+            }
+        }
+
 
 
     }

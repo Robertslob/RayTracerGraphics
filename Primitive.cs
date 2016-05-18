@@ -21,6 +21,7 @@ namespace Application
 
         //Returns lengte van ray r;
         public abstract float intersects(Ray r);
+        public abstract Vector3 getNormal(Vector3 positionOnPrimitive);
         public abstract void debugOutput();
     }
 
@@ -69,6 +70,10 @@ namespace Application
             }
             GL.End();
         }
+        public override Vector3 getNormal(Vector3 positionOnPrimitive)
+        {
+            return (positionOnPrimitive-position).Normalized();
+        }
     }
 
     public class Plane : Primitive
@@ -92,6 +97,10 @@ namespace Application
 
         public override void debugOutput()
         {            
+        }
+        public override Vector3 getNormal(Vector3 positionOnPrimitive)
+        {
+            return normal;
         }
     }
 
