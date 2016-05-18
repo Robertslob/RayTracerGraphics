@@ -53,11 +53,11 @@ namespace Application
 		{
 
 			// called once per frame; render
-			raytracer.Render();
+			
 
             cameraMovement();
 
-            SwapBuffers();
+            
 
 
 			if (terminated) 
@@ -65,14 +65,15 @@ namespace Application
 				Exit();
 				return;
 			}
+
+            raytracer.Render();
+
 			// convert Game.screen to OpenGL texture
-			GL.BindTexture( TextureTarget.Texture2D, screenID );
-			GL.TexImage2D( TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, 
-						   raytracer.screen.width, raytracer.screen.height, 0, 
-						   OpenTK.Graphics.OpenGL.PixelFormat.Bgra, 
-						   PixelType.UnsignedByte, raytracer.screen.pixels 
-						 );
+			
 			// clear window contents
+
+            
+
 			GL.Clear( ClearBufferMask.ColorBufferBit );
 			// setup camera
 			GL.MatrixMode( MatrixMode.Modelview );
@@ -80,6 +81,19 @@ namespace Application
 			GL.MatrixMode( MatrixMode.Projection );
 			GL.LoadIdentity();
 			// draw screen filling quad
+
+            GL.ClearColor(Color.Black);
+            GL.Enable(EnableCap.Texture2D);
+            GL.Disable(EnableCap.DepthTest);
+            GL.Color3(1f, 1f, 1f);
+
+            GL.BindTexture(TextureTarget.Texture2D, screenID);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba,
+                           raytracer.screen.width, raytracer.screen.height, 0,
+                           OpenTK.Graphics.OpenGL.PixelFormat.Bgra,
+                           PixelType.UnsignedByte, raytracer.screen.pixels
+                         );
+
 			GL.Begin( PrimitiveType.Quads );
 			GL.TexCoord2( 0.0f, 1.0f ); GL.Vertex2( -1.0f, -1.0f );
 			GL.TexCoord2( 1.0f, 1.0f ); GL.Vertex2(  1.0f, -1.0f );
@@ -87,8 +101,14 @@ namespace Application
             GL.TexCoord2( 0.0f, 0.0f ); GL.Vertex2( -1.0f,  1.0f );
 			GL.End();
 			// tell OpenTK we're done rendering
-			
-            GL.Enable(EnableCap.LineSmooth);
+
+            GL.Enable(EnableCap.DepthTest);
+            GL.Disable(EnableCap.Texture2D);
+            GL.Clear(ClearBufferMask.DepthBufferBit);
+
+            raytracer.debugOutput();
+
+            SwapBuffers();
 		}
 
         public void cameraMovement()
