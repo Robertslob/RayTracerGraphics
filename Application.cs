@@ -74,7 +74,7 @@ namespace Application
 			GL.MatrixMode( MatrixMode.Projection );
 			GL.LoadIdentity();
 
-            //does something i don't know
+            //prepares to draw the screen texture
             GL.ClearColor(Color.Black);
             GL.Enable(EnableCap.Texture2D);
             GL.Disable(EnableCap.DepthTest);
@@ -97,7 +97,7 @@ namespace Application
             GL.TexCoord2( 0.0f, 0.0f ); GL.Vertex2( -1.0f,  1.0f );
 			GL.End();
 
-            //reverts the stuff i don't know
+            //reverts the needed properties to convert the screen to texture
             GL.Enable(EnableCap.DepthTest);
             GL.Disable(EnableCap.Texture2D);
             GL.Clear(ClearBufferMask.DepthBufferBit);
