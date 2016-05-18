@@ -112,25 +112,30 @@ namespace Application
         public void cameraMovement()
         {
             var state = OpenTK.Input.Keyboard.GetState();
-            Matrix4 m = Matrix4.CreateRotationY(-0.02f);
-            Matrix4 m2 = Matrix4.CreateRotationY(0.02f);
-            if (state[Key.Q])
+            Matrix4 my = Matrix4.CreateRotationY(-0.02f);
+            Matrix4 my2 = Matrix4.CreateRotationY(0.02f);
+            Matrix4 mx = Matrix4.CreateRotationX(-0.02f);
+            Matrix4 mx2 = Matrix4.CreateRotationX(0.02f);
+
+            //rotate the camera with the pijltjestoetsen
+            if (state[Key.Left])
             {
-                camera.direction = Vector3.Transform(camera.direction, m);
+                camera.direction = Vector3.Transform(camera.direction, my);
             }
-            if (state[Key.E])
+            if (state[Key.Right])
             {
-                camera.direction = Vector3.Transform(camera.direction, m2);
+                camera.direction = Vector3.Transform(camera.direction, my2);
             }
-            if (state[Key.R])
+            if (state[Key.Up])
             {
-                camera.distancePlane += 0.5f;
+                camera.direction = Vector3.Transform(camera.direction, mx);
             }
-            if (state[Key.F])
+            if (state[Key.Down])
             {
-                camera.distancePlane -= 0.5f;
-                if (camera.distancePlane < 1) camera.distancePlane = 1;
+                camera.direction = Vector3.Transform(camera.direction, mx2);
             }
+
+            //move the camera in 2 dimensions with WASD
             if (state[Key.A])
             {
                 camera.position -= Vector3.UnitX;
@@ -147,6 +152,8 @@ namespace Application
             {
                 camera.position -= Vector3.UnitZ;
             }
+
+            //change the camera height with Z and X
             if (state[Key.Z])
             {
                 camera.position += Vector3.UnitY;
@@ -155,6 +162,19 @@ namespace Application
             {
                 camera.position -= Vector3.UnitY;
             }
+
+            //zoom in and out with E and Q
+            if (state[Key.E])
+            {
+                camera.distancePlane += 0.5f;
+            }
+            if (state[Key.Q])
+            {
+                camera.distancePlane -= 0.5f;
+                if (camera.distancePlane < 1) camera.distancePlane = 1;
+            }   
+
+
             camera.direction.Normalize();
             camera.UpdatePlane();
         }
