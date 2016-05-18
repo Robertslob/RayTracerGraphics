@@ -5,6 +5,7 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
+using System.Diagnostics;
 
 namespace Application
 {
@@ -14,6 +15,8 @@ namespace Application
 		static Raytracer raytracer;
 		static bool terminated = false;
         private Camera camera;
+        Stopwatch stopwatch = new Stopwatch();
+        int processedframes = 0;
 
 		protected override void OnLoad( EventArgs e )
 		{
@@ -28,6 +31,9 @@ namespace Application
 			Sprite.target = raytracer.screen;
 			screenID = raytracer.screen.GenTexture();
 			camera = raytracer.Init();
+
+            //start counting
+            stopwatch.Start();
 		}
 		protected override void OnUnload( EventArgs e )
 		{
@@ -52,6 +58,9 @@ namespace Application
         // called once per frame; render
 		protected override void OnRenderFrame( FrameEventArgs e )
 		{
+            //variabels for average framerate calculations
+            processedframes += 1;            
+
             //update the camera position and direction
             cameraMovement();           
             
@@ -107,6 +116,9 @@ namespace Application
 
             //tell openTK we are gonna work on or next frame
             SwapBuffers();
+
+            //write how long the frame took to complete
+            Console.WriteLine(processedframes/(stopwatch.ElapsedMilliseconds * 0.001f));
 		}
 
         public void cameraMovement()
