@@ -15,9 +15,10 @@ namespace Application
         public Scene()
         {
             //all the primitives that are present in our scene
-            allLights.Add(new Light(new Vector3(0, 0, 0), new Vector3(5, 5, 5)));
-            allPrimitives.Add(new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material(new Vector3(0.2f, 0.2f, 0.3f), 0.0f, 0.4f)));
-            allPrimitives.Add(new Sphere(new Vector3(0, 1, 0), 1, new Material(new Vector3(0, 1, 0), 0.5f, 0.98f)));
+            allLights.Add(new Light(new Vector3(0, 1, 0), new Vector3(5, 5, 5)));
+            allLights.Add(new Light(new Vector3(5, 1, 5), new Vector3(50, 50, 5)));
+            allPrimitives.Add(new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material(new Vector3(0.2f, 0.2f, 0.3f), 0.0f, 0.1f)));
+            allPrimitives.Add(new Sphere(new Vector3(0, 1, 0), 1, new Material(new Vector3(0, 1, 1), 0.5f, 0.5f)));
             allPrimitives.Add(new Sphere(new Vector3(-3, 1, 0), 1, new Material(new Vector3(1, 0, 0), 0.5f, 0.0f)));
             allPrimitives.Add(new Sphere(new Vector3(3, 1, 0), 1, new Material(new Vector3(0, 0, 1), 0.5f, 0.0f)));
         }
@@ -48,13 +49,14 @@ namespace Application
             //foreach light we check if there is nothing in the way to our destination point 
             foreach (Light light in allLights)
             {
-                Vector3 dir = point - light.location;
-                float length = (float)Math.Sqrt((Vector3.Dot(dir, dir)));
-                Vector3 normDir = dir / length;
-                if (!shadowRay(point, light, normDir, length))
+                Vector3 dir = point - light.location;                
+                Vector3 normDir = dir.Normalized();
+                if (!shadowRay(point, light, normDir, dir.LengthSquared))
                 {
                     //Console.WriteLine("aaaaaaa");
-                    illumination += (1 / (length * length)) * light.intensity * Vector3.Dot(-normDir.Normalized(), primitive.getNormal(point));
+                    float dotpr = Vector3.Dot(-normDir, primitive.getNormal(point));
+                    if (dotpr > 0)
+                        illumination += (1 / (dir.LengthSquared)) * light.intensity * dotpr;
                 }
             }
             return illumination;
@@ -66,13 +68,13 @@ namespace Application
             
             Ray r = new Ray(light.location, normDir);
 
-            float DistancetoPoint = length*.99f;
+            //float DistancetoPoint = length*.99f;
             float currentDistance;
 
             foreach (Primitive primitive in allPrimitives)
             {                    
                 currentDistance = primitive.intersects(r);
-                if (currentDistance < DistancetoPoint && currentDistance > 0)
+                if (currentDistance * currentDistance < length * 0.999f && currentDistance > 0)
                     return true;
             }            
             return false;

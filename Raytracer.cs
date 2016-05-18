@@ -61,7 +61,7 @@ namespace Application
         private Vector3 PrimaryRay(Ray r, int depth = 5)
         {
             Intersection intersected = scene.intersectScene(r);
-            Vector3 color = new Vector3(0, 0, 0);
+            Vector3 color = new Vector3(.4f, 0.4f, 1);
 
             Primitive primitive = intersected.intersectedPrimitive;
             if (primitive != null)
