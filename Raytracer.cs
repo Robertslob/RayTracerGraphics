@@ -156,6 +156,7 @@ namespace Application
                 Vector3 dir = pos - light.location;                
                 Vector3 normDir = dir.Normalized();
                 Ray r = new Ray(light.location, normDir);
+                bool isblocked = false;
 
                 //float DistancetoPoint = length*.99f;
                 float currentDistance;
@@ -166,7 +167,14 @@ namespace Application
                     if (currentDistance * currentDistance < dir.LengthSquared * 0.999f && currentDistance > 0){
                         GL.Vertex2(light.location.Xz);
                         GL.Vertex2(light.location.Xz + currentDistance * normDir.Xz);
+                        isblocked = true;
+                        break;
                     }
+                }
+                if (!isblocked)
+                {
+                    GL.Vertex2(light.location.Xz);
+                    GL.Vertex2(pos.Xz);
                 }
             }            
         }
@@ -181,10 +189,11 @@ namespace Application
             GL.Vertex2(pos.Xz);
             GL.Vertex2(dest.Xz);
 
-            debugshadowRay(dest);
+            
 
             if (intersected.intersectedPrimitive != null && depth > 0)
             {
+                debugshadowRay(dest);
                 if (intersected.intersectedPrimitive.material.reflection > 0)
                 {
                     Vector3 m = ray.mirror(intersected.intersectedPrimitive.getNormal(dest));
