@@ -51,8 +51,30 @@ namespace Application
                 Vector3 dir = point - light.location;
                 float length = (float)Math.Sqrt((Vector3.Dot(dir, dir)));
                 Vector3 normDir = dir / length;
+                if (!shadowRay(point, light, normDir, length))
+                {
+                    //Console.WriteLine("aaaaaaa");
+                    illumination += (1 / (length * length)) * light.intensity * Vector3.Dot(-normDir.Normalized(), primitive.getNormal(point));
                 }
             }
+            return illumination;
+        }
+
+        // Return true als er iets tussen de lichtbron en het punt zit, false anders
+        public bool shadowRay (Vector3 point, Light light, Vector3 normDir, float length)
+        {            
+            
+            Ray r = new Ray(light.location, normDir);
+
+            float DistancetoPoint = length*.99f;
+            float currentDistance;
+
+            foreach (Primitive primitive in allPrimitives)
+            {                    
+                currentDistance = primitive.intersects(r);
+                if (currentDistance < DistancetoPoint && currentDistance > 0)
+                    return true;
+            }            
             return false;
         }
 
