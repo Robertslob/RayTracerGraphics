@@ -150,13 +150,38 @@ namespace Application
             GL.Viewport(0, 0, 1024, 512);
         }
 
+        private void debugshadowRay(Vector3 pos){
+            GL.Color3(1.0f, 1.0f, 0.4f);
+            foreach (Light light in scene.allLights){
+                Vector3 dir = pos - light.location;                
+                Vector3 normDir = dir.Normalized();
+                Ray r = new Ray(light.location, normDir);
+
+                //float DistancetoPoint = length*.99f;
+                float currentDistance;
+
+                foreach (Primitive primitive in scene.allPrimitives)
+                {                    
+                    currentDistance = primitive.intersects(r);
+                    if (currentDistance * currentDistance < dir.LengthSquared * 0.999f && currentDistance > 0){
+                        GL.Vertex2(light.location.Xz);
+                        GL.Vertex2(light.location.Xz + currentDistance * normDir.Xz);
+                    }
+                }
+            }            
+        }
+
         private void debugRay(Vector3 pos, Ray ray, int depth)
         {
             Intersection intersected = scene.intersectScene(ray);
 
             Vector3 dest = (pos + ray.Direction * intersected.intersectionDistance);
+            GL.Color3(0.4f, 1.0f, 0.4f);
+
             GL.Vertex2(pos.Xz);
             GL.Vertex2(dest.Xz);
+
+            debugshadowRay(dest);
 
             if (intersected.intersectedPrimitive != null && depth > 0)
             {
