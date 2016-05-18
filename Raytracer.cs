@@ -64,6 +64,9 @@ namespace Application {
                 Vector3 dest = r.Origin + r.Direction * intersected.intersectionDistance;      
           
                 //shadowray the fuck out of the dest
+                //a very important thing to note is that right now it is much easier to start at our lights and from there on try to see if the object is visible. if you do it the other way around
+                //you wil have to write more code probably because you have to make sure that "until" a certain point there is no intersection while the other way around you only have to check
+                //if the object that is intersected is the primitive of dest. I think.....
                 
                 if (material.reflection > 0 && depth > 0)
                 {
