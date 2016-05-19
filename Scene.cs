@@ -18,9 +18,9 @@ namespace Application
             allLights.Add(new Light(new Vector3(0, 10, 0), new Vector3(150, 150, 150)));
             allLights.Add(new Light(new Vector3(5, 1, 5), new Vector3(50, 50, 5)));
             allPrimitives.Add(new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material(new Vector3(0.2f, 0.2f, 0.3f), 0.0f, 0.1f, true)));
-            allPrimitives.Add(new Sphere(new Vector3(0, 1, 0), 1, new Material(new Vector3(0, 1, 1), 0.5f, 0.5f, false)));
-            allPrimitives.Add(new Sphere(new Vector3(-3, 1, 0), 1, new Material(new Vector3(1, 0, 0), 0.5f, 0.0f, false)));
-            allPrimitives.Add(new Sphere(new Vector3(3, 1, 0), 1, new Material(new Vector3(0, 0, 1), 0.5f, 0.0f, false)));
+            allPrimitives.Add(new Sphere(new Vector3(0, 1, 0), 1, new Material(new Vector3(0, 0.8f, 0.7f), 0.5f, 0.5f, false)));
+            allPrimitives.Add(new Sphere(new Vector3(-3, 1, 0), 1, new Material(new Vector3(0.5f, 0, 0), 0.5f, 0.0f, false)));
+            allPrimitives.Add(new Sphere(new Vector3(3, 1, 0), 1, new Material(new Vector3(0, 0, 0.8f), 0.5f, 0.0f, false)));
         }
 
         public Intersection intersectScene(Ray ray)

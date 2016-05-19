@@ -25,7 +25,7 @@ namespace Application
         public Camera Init()
         {
             scene = new Scene();
-            camera = new Camera(new Vector3(0, 0, -10), Vector3.UnitZ);
+            camera = new Camera(new Vector3(10, 3.5f, 11), new Vector3(-0.612f, -0.415f, -0.674f));
             camera.UpdatePlane();
             return camera;
         }
@@ -55,7 +55,6 @@ namespace Application
                 }
             }
             );
-            //draw the debug                    
         }
 
         private Vector3 PrimaryRay(Ray r, int depth = 5)
