@@ -71,7 +71,7 @@ namespace Application
                 //with the dest we can calulate the luminicity (hoe je dat ook schrijft) of a pixel by shadowraying
                 Vector3 dest = r.Origin + r.Direction * intersected.intersectionDistance;
 
-                Vector3 illumination = scene.calculateillumination(dest, primitive);
+                Vector3 illumination = calculateillumination(dest, primitive);
                 color = material.getpatternColor(dest) * illumination;            
                 
 
@@ -86,6 +86,43 @@ namespace Application
             }
 
             return color;
+        }
+
+        public Vector3 calculateillumination(Vector3 point, Primitive primitive)
+        {
+            Vector3 illumination = Vector3.Zero;
+            //foreach light we check if there is nothing in the way to our destination point 
+            foreach (Light light in scene.allLights)
+            {
+                Vector3 dir = point - light.location;
+                Vector3 normDir = dir.Normalized();
+                if (!shadowRay(point, light, normDir, dir.LengthSquared))
+                {
+                    //Console.WriteLine("aaaaaaa");
+                    float dotpr = Vector3.Dot(-normDir, primitive.getNormal(point));
+                    if (dotpr > 0)
+                        illumination += (1 / (dir.LengthSquared)) * light.intensity * dotpr;
+                }
+            }
+            return illumination;
+        }
+
+        // Return true als er iets tussen de lichtbron en het punt zit, false anders
+        public bool shadowRay(Vector3 point, Light light, Vector3 normDir, float length)
+        {
+
+            Ray r = new Ray(light.location, normDir);
+
+            //float DistancetoPoint = length*.99f;
+            float currentDistance;
+
+            foreach (Primitive primitive in scene.allPrimitives)
+            {
+                currentDistance = primitive.intersects(r);
+                if (currentDistance * currentDistance < length * 0.999f && currentDistance > 0)
+                    return true;
+            }
+            return false;
         }
 
         public void debugOutput()
@@ -110,8 +147,8 @@ namespace Application
             GL.End();
 
             //Draw camera end
-            Vector2 sv1 = (camera.position.Xz - camera.p1.Xz) * -30;
-            Vector2 sv2 = (camera.position.Xz - camera.p3.Xz) * -30;
+            Vector2 sv1 = (camera.p2.Xz - camera.position.Xz) * 30.0f;
+            Vector2 sv2 = (camera.p3.Xz - camera.position.Xz) * 30.0f;
 
             GL.Color3(0.8f, 0.5f, 0.5f);
             GL.Begin(PrimitiveType.Lines);
@@ -121,22 +158,23 @@ namespace Application
             GL.Vertex2(camera.position.Xz);
             GL.Vertex2((camera.position.Xz + sv2));
 
+            
+
             GL.Color3(0.2f, 1.0f, 0.7f);
 
             //draw the rays of the 255 row with an interval of 64
-            for (int y = 255; y < 256; y++)
-            {
-                for (int x = 0; x <= 512; x += 64)
+            
+                for (int x = 0; x <= 512; x += 32)
                 {
-                    Ray currentray = camera.getRay(x, y);
+                    Ray currentray = camera.getRay(x, 255);
                     debugRay(camera.position, currentray, 10);
                 }
-            }
 
-            GL.Color3(0.4f, 1.0f, 0.4f);
-            GL.Vertex2(camera.p1.Xz);
-            GL.Vertex2(camera.p3.Xz);
-            GL.End();
+
+                GL.Color3(0.4f, 1.0f, 0.4f);
+                GL.Vertex2(camera.p2.Xz);
+                GL.Vertex2(camera.p3.Xz);
+                GL.End();
 
             foreach (Primitive primitive in scene.allPrimitives)
             {
@@ -149,10 +187,36 @@ namespace Application
             GL.Viewport(0, 0, 1024, 512);
         }
 
-        private void debugshadowRay(Vector3 pos){
+      
+
+        private void debugRay(Vector3 pos, Ray ray, int depth)
+        {
+            Intersection intersected = scene.intersectScene(ray);
+
+            Vector3 dest = (pos + ray.Direction * intersected.intersectionDistance);
+            GL.Color3(0.4f, 1.0f, 0.4f);
+
+            GL.Vertex2(pos.Xz);
+            GL.Vertex2(dest.Xz);            
+
+            if (intersected.intersectedPrimitive != null && depth > 0)
+            {
+                debugshadowRay(dest);
+                if (intersected.intersectedPrimitive.material.reflection > 0)
+                {
+                    Vector3 m = ray.mirror(intersected.intersectedPrimitive.getNormal(dest));
+                    Ray nray = new Ray(dest + m * 0.05f, m);
+                    debugRay(dest, nray, depth - 1);
+                }
+            }
+        }
+
+        private void debugshadowRay(Vector3 pos)
+        {
             GL.Color3(1.0f, 1.0f, 0.4f);
-            foreach (Light light in scene.allLights){
-                Vector3 dir = pos - light.location;                
+            foreach (Light light in scene.allLights)
+            {
+                Vector3 dir = pos - light.location;
                 Vector3 normDir = dir.Normalized();
                 Ray r = new Ray(light.location, normDir);
                 bool isblocked = false;
@@ -161,9 +225,10 @@ namespace Application
                 float currentDistance;
 
                 foreach (Primitive primitive in scene.allPrimitives)
-                {                    
+                {
                     currentDistance = primitive.intersects(r);
-                    if (currentDistance * currentDistance < dir.LengthSquared * 0.999f && currentDistance > 0){
+                    if (currentDistance * currentDistance < dir.LengthSquared * 0.999f && currentDistance > 0)
+                    {
                         GL.Vertex2(light.location.Xz);
                         GL.Vertex2(light.location.Xz + currentDistance * normDir.Xz);
                         isblocked = true;
@@ -174,30 +239,6 @@ namespace Application
                 {
                     GL.Vertex2(light.location.Xz);
                     GL.Vertex2(pos.Xz);
-                }
-            }            
-        }
-
-        private void debugRay(Vector3 pos, Ray ray, int depth)
-        {
-            Intersection intersected = scene.intersectScene(ray);
-
-            Vector3 dest = (pos + ray.Direction * intersected.intersectionDistance);
-            GL.Color3(0.4f, 1.0f, 0.4f);
-
-            GL.Vertex2(pos.Xz);
-            GL.Vertex2(dest.Xz);
-
-            
-
-            if (intersected.intersectedPrimitive != null && depth > 0)
-            {
-                debugshadowRay(dest);
-                if (intersected.intersectedPrimitive.material.reflection > 0)
-                {
-                    Vector3 m = ray.mirror(intersected.intersectedPrimitive.getNormal(dest));
-                    Ray nray = new Ray(dest + m * 0.05f, m);
-                    debugRay(dest, nray, depth - 1);
                 }
             }
         }

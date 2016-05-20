@@ -31,19 +31,20 @@ namespace Application
             left = Vector3.Cross(direction, up);
             up = Vector3.Cross(left, direction);
             //linksonder
-            p1 = position + direction * distancePlane + left - up;
+            p1 = position + (direction * distancePlane) + left - up;
             //linksboven
-            p2 = position + direction * distancePlane + left + up;
+            p2 = position + (direction * distancePlane) + left + up;
             //rechtsboven
-            p3 = position + direction * distancePlane - left + up;
+            p3 = position + (direction * distancePlane) - left + up;
         }
 
         //Get ray from camera to 'pixel' on viewplane.
-        public Ray getRay(int x, int y)
+        float div = 1 / 512.0f;
+        public Ray getRay(int x, int y) 
         {
-            float div = 1 / 512.0f;
-            Vector3 PoS = p2 + (x * div) * (p3 - p2) + (y * div) * (p1 - p2); //Kan niet zo he, die hoofdletters, waar staat het voor? pos normaal?
-            return new Ray(position, (PoS - position).Normalized());  
+            
+            Vector3 pos = p2 + (x * div) * (p3 - p2) + (y * div) * (p1 - p2); //Kan niet zo he, die hoofdletters, waar staat het voor? pos normaal?
+            return new Ray(position, (pos - position).Normalized());  
         }
     }
     

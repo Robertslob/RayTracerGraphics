@@ -126,8 +126,8 @@ namespace Application
             var state = OpenTK.Input.Keyboard.GetState();
             Matrix4 my = Matrix4.CreateRotationY(-0.02f);
             Matrix4 my2 = Matrix4.CreateRotationY(0.02f);
-            Matrix4 mx = Matrix4.CreateRotationX(-0.02f);
-            Matrix4 mx2 = Matrix4.CreateRotationX(0.02f);
+            Matrix4 mx = Matrix4.CreateFromAxisAngle(camera.left, -0.2f);
+            Matrix4 mx2 = Matrix4.CreateFromAxisAngle(camera.left, 0.2f);
 
             //rotate the camera with the pijltjestoetsen
             if (state[Key.Left])
@@ -150,19 +150,19 @@ namespace Application
             //move the camera in 2 dimensions with WASD
             if (state[Key.A])
             {
-                camera.position -= Vector3.UnitX;
+                camera.position += camera.left;
             }
             if (state[Key.D])
             {
-                camera.position += Vector3.UnitX;
+                camera.position -= camera.left;
             }
             if (state[Key.W])
             {
-                camera.position += Vector3.UnitZ;
+                camera.position += new Vector3(camera.direction.X, 0, camera.direction.Z);
             }
             if (state[Key.S])
             {
-                camera.position -= Vector3.UnitZ;
+                camera.position -= new Vector3(camera.direction.X, 0, camera.direction.Z);
             }
 
             //change the camera height with Z and X
@@ -188,7 +188,7 @@ namespace Application
             }   
 
 
-            camera.direction.Normalize();
+            //camera.direction.Normalize();
             camera.UpdatePlane();
         }
 

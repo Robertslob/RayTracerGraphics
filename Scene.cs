@@ -43,42 +43,7 @@ namespace Application
             return new Intersection(closestDistance, closestPrimitive);
         }
 
-        public Vector3 calculateillumination(Vector3 point, Primitive primitive)
-        {
-            Vector3 illumination = Vector3.Zero;
-            //foreach light we check if there is nothing in the way to our destination point 
-            foreach (Light light in allLights)
-            {
-                Vector3 dir = point - light.location;                
-                Vector3 normDir = dir.Normalized();
-                if (!shadowRay(point, light, normDir, dir.LengthSquared))
-                {
-                    //Console.WriteLine("aaaaaaa");
-                    float dotpr = Vector3.Dot(-normDir, primitive.getNormal(point));
-                    if (dotpr > 0)
-                        illumination += (1 / (dir.LengthSquared)) * light.intensity * dotpr;
-                }
-            }
-            return illumination;
-        }
-
-        // Return true als er iets tussen de lichtbron en het punt zit, false anders
-        public bool shadowRay (Vector3 point, Light light, Vector3 normDir, float length)
-        {            
-            
-            Ray r = new Ray(light.location, normDir);
-
-            //float DistancetoPoint = length*.99f;
-            float currentDistance;
-
-            foreach (Primitive primitive in allPrimitives)
-            {                    
-                currentDistance = primitive.intersects(r);
-                if (currentDistance * currentDistance < length * 0.999f && currentDistance > 0)
-                    return true;
-            }            
-            return false;
-        }
+        
 
 
     }
