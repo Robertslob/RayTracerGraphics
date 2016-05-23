@@ -57,7 +57,7 @@ namespace Application
             );
         }
 
-        private Vector3 PrimaryRay(Ray r, int depth = 5)
+        private Vector3 PrimaryRay(Ray r, int depth = 2)
         {
             Intersection intersected = scene.intersectScene(r);
             Vector3 color = new Vector3(.4f, 0.4f, 1);
@@ -95,13 +95,21 @@ namespace Application
             foreach (Light light in scene.allLights)
             {
                 Vector3 dir = point - light.location;
-                Vector3 normDir = dir.Normalized();
-                if (!shadowRay(point, light, normDir, dir.LengthSquared))
-                {
-                    //Console.WriteLine("aaaaaaa");
-                    float dotpr = Vector3.Dot(-normDir, primitive.getNormal(point));
-                    if (dotpr > 0)
-                        illumination += (1 / (dir.LengthSquared)) * light.intensity * dotpr;
+                Vector3 pointNormal = primitive.getNormal(point);
+                //only if a light source is not behind the point that needs shading
+                if(Vector3.Dot(dir, pointNormal) < 0){
+                    //only if the distance of the light is not too far away
+                    if (Vector3.Dot(dir, dir) < 512)
+                    {
+                        Vector3 normDir = dir.Normalized();
+                        if (!shadowRay(point, light, normDir, dir.LengthSquared))
+                        {
+                            //Console.WriteLine("aaaaaaa");
+                            float dotpr = Vector3.Dot(-normDir, pointNormal);
+                            if (dotpr > 0)
+                                illumination += (1 / (dir.LengthSquared)) * light.intensity * dotpr;
+                        }
+                    }
                 }
             }
             return illumination;
