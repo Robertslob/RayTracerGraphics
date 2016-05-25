@@ -74,6 +74,7 @@ namespace Application
         public override void debugOutput()
         {
             GL.Begin(PrimitiveType.LineLoop);
+            GL.Color3(material.color);
             for (int i = 0; i <= 300; i++)
             {
                 float angle = (float)(2 * Math.PI * i) / 300.0f;
