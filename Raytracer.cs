@@ -137,7 +137,13 @@ namespace Application
             //calculate n1/n2
             float n12 = ray.refractionIndex / refrIndex;
             //calculate cos(theta)
-            float cosTheta = Math.Abs(Vector3.Dot(-ray.Direction, normal)); 
+
+            float cosTheta = Vector3.Dot(-ray.Direction, normal);
+            if (cosTheta < 0)
+            {
+                normal = -normal;
+                cosTheta = -cosTheta;
+            }
             
             //check if the refraction hasn't reached its critical point.
             float k = 1 - ((n12 * n12) * (1 - (cosTheta * cosTheta)));
@@ -147,8 +153,8 @@ namespace Application
             Vector3 dir = n12 * ray.Direction + normal * (n12 * cosTheta - (float)Math.Sqrt(k));
 
             dir.Normalize();
-            Ray nray = new Ray(dest + 0.012f * dir, dir);            
-            nray.refractionIndex = primitive.material.refractionIndex;
+            Ray nray = new Ray(dest + 0.012f * dir, dir);
+            nray.refractionIndex = refrIndex;
             
             return nray;
         }
