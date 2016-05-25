@@ -19,6 +19,8 @@ namespace Application
             this.position = position;
         }
 
+        
+
         //Returns lengte van ray r;
         public abstract float intersects(Ray r);
         public abstract Vector3 getNormal(Vector3 positionOnPrimitive);
@@ -37,17 +39,20 @@ namespace Application
 
         public override float intersects(Ray r)
         {
-            if (!canIntersect(r))
-                return int.MaxValue;
+            /*bool canIntersect = this.canIntersect(r);
+            if (!canIntersect)
+                return int.MaxValue;            */
+
             float b = 2*(Vector3.Dot(r.Direction, (r.Origin - position)));
             float c = Vector3.Dot((r.Origin - position),(r.Origin - position)) - radius * radius;
 
             if (b * b - 4 * c > 0)
             {
-                
-                float cs = (float)Math.Sqrt((double)(b * b - 4*c));                
+                float cs = (float)Math.Sqrt((double)(b * b - 4 * c));
                 float distance1 = -b + cs;
                 float distance2 = -b - cs;
+                distance2 = (distance2 < 0) ? distance1 : distance2;
+                
                 return Math.Min(distance1, distance2) / 2.0f;
             }
             else if (b * b - 4 * c == 0)
@@ -88,6 +93,7 @@ namespace Application
         {
             return (positionOnPrimitive-position).Normalized();
         }
+        
     }
 
     public class Plane : Primitive

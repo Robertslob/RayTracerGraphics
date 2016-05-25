@@ -21,7 +21,6 @@ namespace Application
             return (Math.Min(red, 255) << 16) + (Math.Min(green, 255) << 8) + Math.Min(blue, 255);
         }
 
-
         public Camera Init()
         {
             scene = new Scene();
@@ -34,12 +33,12 @@ namespace Application
         int a = 0;
         public void Render()
         {
-            a++;
+           /* a++;
             scene.allPrimitives[1].position.X = (float)Math.Sin((double)a / 20.0d) * 6;
             scene.allPrimitives[1].position.Z = (float)Math.Cos((double)a / 20.0d) * 6;
             scene.allPrimitives[1].material.color.X = 0.5f + (float)Math.Sin((double)a / 10.0d) * 0.5f;
             scene.allPrimitives[1].material.color.Y = 0.5f + (float)Math.Sin((double)a / 10.0d) * 0.5f;
-            scene.allPrimitives[1].material.color.Z = 0.5f + (float)Math.Sin((double)a / 20.0d) * 0.5f;
+            scene.allPrimitives[1].material.color.Z = 0.5f + (float)Math.Sin((double)a / 20.0d) * 0.5f;*/
             screen.Clear(0);
             //raytrace color for each pixel (hardcoded screen resolution!)
 
@@ -57,7 +56,7 @@ namespace Application
             );
         }
 
-        private Vector3 PrimaryRay(Ray r, int depth = 2)
+        private Vector3 PrimaryRay(Ray r, int depth = 10)
         {
             Intersection intersected = scene.intersectScene(r);
             Vector3 color = new Vector3(.4f, 0.4f, 1);
@@ -66,14 +65,14 @@ namespace Application
             if (primitive != null)
             {
                 Material material = primitive.material;
-                
 
                 //with the dest we can calulate the luminicity (hoe je dat ook schrijft) of a pixel by shadowraying
                 Vector3 dest = r.Origin + r.Direction * intersected.intersectionDistance;
 
                 Vector3 illumination = calculateillumination(dest, primitive);
-                color = material.getpatternColor(dest) * illumination;            
-                
+                color = material.getpatternColor(dest) * illumination;
+                Vector3 reflectionColor = Vector3.Zero;
+                Vector3 refractionColor = Vector3.Zero;
 
                 if (material.reflection > 0 && depth > 0)
                 {
@@ -81,11 +80,63 @@ namespace Application
                     //the 0.01f is a small delta to prevent the reflection hitting the object that reflected the ray again
                     Ray nray = new Ray(dest + reflV * 0.01f, reflV);
                     //combination of the color of the object and the color our reflectionray returns
-                    color = (color * (1 - material.reflection) + PrimaryRay(nray, depth - 1) * material.reflection);
+                    reflectionColor = PrimaryRay(nray, depth - 1);
+                    color = material.reflection * reflectionColor + (1 - material.reflection) * color;
                 }
-            }
 
+                if (material.refraction > 0 && depth > 0)
+                {
+                    float Rf = (float)Math.Pow((material.refractionIndex - r.refractionIndex) / (material.refractionIndex + r.refractionIndex), 2);
+
+                    Ray refractionRay = refract(primitive, r, dest);
+                    if (refractionRay != null)
+                    {
+                        if (material.reflection == 0)
+                        {
+                            refractionColor = PrimaryRay(refractionRay, depth - 1);
+                        }
+                        else
+                        {
+                            float freschnell = Rf + (1 - Rf) * (float)Math.Pow(Vector3.Dot(primitive.getNormal(dest), r.Direction), 5);
+                            refractionColor = (1 - freschnell) * reflectionColor + freschnell * PrimaryRay(refractionRay, depth - 1);
+                        }
+                    }
+                    else
+                    {
+                        refractionColor = reflectionColor;
+                    }
+                    color = material.refraction * refractionColor + (1 - material.refraction) * color;
+                }
+                
+                
+            }
+            
             return color;
+        }
+
+        public Ray refract(Primitive primitive, Ray ray, Vector3 dest)
+        {
+            float refrIndex = (ray.refractionIndex != 1.0f) ? refrIndex = 1 : refrIndex = primitive.material.refractionIndex;
+            Vector3 normal = primitive.getNormal(dest);
+            float n12 = refrIndex / ray.refractionIndex;
+            float cosTheta = Vector3.Dot(ray.Direction, normal);
+            float k = 1 - (n12 * n12) * (1 - (cosTheta * cosTheta));
+            if (k < 0) return null;
+
+            Vector3 dir = n12 * ray.Direction + normal * (n12 * cosTheta - (float)Math.Sqrt(k));
+
+            dir.Normalize();
+            Ray nray = new Ray(dest + 0.012f * dir, dir);
+
+            if (cosTheta > 0)
+            {
+                nray.refractionIndex = primitive.material.refractionIndex;
+            }
+            else
+            {
+                nray.refractionIndex = 1;
+            }
+            return nray;
         }
 
         public Vector3 calculateillumination(Vector3 point, Primitive primitive)
@@ -97,18 +148,15 @@ namespace Application
                 Vector3 dir = point - light.location;
                 Vector3 pointNormal = primitive.getNormal(point);
                 //only if a light source is not behind the point that needs shading
-                if(Vector3.Dot(dir, pointNormal) < 0){
-                    //only if the distance of the light is not too far away
-                    if (Vector3.Dot(dir, dir) < 512)
-                    {
-                        Vector3 normDir = dir.Normalized();
-                        if (!shadowRay(point, light, normDir, dir.LengthSquared))
-                        {
-                            //Console.WriteLine("aaaaaaa");
-                            float dotpr = Vector3.Dot(-normDir, pointNormal);
-                            if (dotpr > 0)
-                                illumination += (1 / (dir.LengthSquared)) * light.intensity * dotpr;
-                        }
+                if (Vector3.Dot(dir, pointNormal) < 0 && Vector3.Dot(dir, dir) < 512)
+                {
+                    //only if the distance of the light is not too far away                    
+                    Vector3 normDir = dir.Normalized();
+                    if (!shadowRay(point, light, normDir, dir.LengthSquared))
+                    {                        
+                        float dotpr = Vector3.Dot(-normDir, pointNormal);
+                        if (dotpr > 0)
+                            illumination += (1 / (dir.LengthSquared)) * light.intensity * dotpr;
                     }
                 }
             }
@@ -144,7 +192,7 @@ namespace Application
             GL.Disable(EnableCap.Texture2D);
 
             GL.MatrixMode(MatrixMode.Projection);
-            Matrix4 m = Matrix4.CreateScale(1 / 16.0f);
+            Matrix4 m = Matrix4.CreateScale(1 / 8.0f);
             GL.LoadMatrix(ref m);
 
 
@@ -164,18 +212,16 @@ namespace Application
             GL.Vertex2((camera.position.Xz + sv1));
 
             GL.Vertex2(camera.position.Xz);
-            GL.Vertex2((camera.position.Xz + sv2));
-
-            
+            GL.Vertex2((camera.position.Xz + sv2));            
 
             GL.Color3(0.2f, 1.0f, 0.7f);
 
             //draw the rays of the 255 row with an interval of 64
             
-                for (int x = 0; x <= 512; x += 32)
+                for (int x = 0; x <= 512; x += 128)
                 {
                     Ray currentray = camera.getRay(x, 255);
-                    debugRay(camera.position, currentray, 10);
+                    debugRay(camera.position, currentray, 4);
                 }
 
 
@@ -206,7 +252,6 @@ namespace Application
 
             GL.Vertex2(pos.Xz);
             GL.Vertex2(dest.Xz);            
-
             if (intersected.intersectedPrimitive != null && depth > 0)
             {
                 debugshadowRay(dest);
@@ -216,7 +261,15 @@ namespace Application
                     Ray nray = new Ray(dest + m * 0.05f, m);
                     debugRay(dest, nray, depth - 1);
                 }
-            }
+
+                if (intersected.intersectedPrimitive.material.refraction > 0 && depth > 0)
+                {
+                    Ray nray = refract(intersected.intersectedPrimitive, ray, dest);
+                    if (nray != null)
+                    debugRay(dest + nray.Direction * 0.01f, nray, depth - 1);
+                    
+                }
+            }            
         }
 
         private void debugshadowRay(Vector3 pos)

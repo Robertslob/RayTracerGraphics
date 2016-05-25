@@ -54,6 +54,7 @@ namespace Application
         public Vector3 Origin;
         public Vector3 Direction;
         public int depth; //Voor weerkaatsing enzo.
+        public float refractionIndex = 1.0f;
 
         public Ray(Vector3 position, Vector3 direction)
         {

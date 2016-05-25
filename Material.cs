@@ -12,6 +12,7 @@ namespace Application
         public Vector3 color;
         public float refraction;
         public float reflection;
+        public float refractionIndex;
         private bool hasPattern;
 
         public Material(Vector3 color, float refraction, float reflection, bool pattern)
@@ -20,6 +21,7 @@ namespace Application
             this.refraction = refraction;
             this.reflection = reflection;
             this.hasPattern = pattern;
+            this.refractionIndex = 0.8f;
         }
 
         public Vector3 getpatternColor(Vector3 dest)
