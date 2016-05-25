@@ -39,7 +39,7 @@ namespace Application
         }
 
         //Get ray from camera to 'pixel' on viewplane.
-        float div = 1 / 512.0f;
+        float div = 1 / (float)Raytracer.WIDTH;
         public Ray getRay(int x, int y) 
         {
             

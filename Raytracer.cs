@@ -16,6 +16,8 @@ namespace Application
         public Camera camera;
         public Scene scene;
 
+        public static int WIDTH = 512 >> 1;
+
         int CreateColor(int red, int green, int blue)
         {
             return (Math.Min(red, 255) << 16) + (Math.Min(green, 255) << 8) + Math.Min(blue, 255);
@@ -24,7 +26,7 @@ namespace Application
         public Camera Init()
         {
             scene = new Scene();
-            camera = new Camera(new Vector3(10, 3.5f, 11), new Vector3(-0.612f, -0.415f, -0.674f));
+            camera = new Camera(new Vector3(2.5f, 2.5f, 2.5f), new Vector3(-0.612f, -0.415f, -0.674f));
             camera.UpdatePlane();
             return camera;
         }
@@ -33,7 +35,7 @@ namespace Application
         int a = 0;
         public void Render()
         {
-           /* a++;
+            /*a++;
             scene.allPrimitives[1].position.X = (float)Math.Sin((double)a / 20.0d) * 6;
             scene.allPrimitives[1].position.Z = (float)Math.Cos((double)a / 20.0d) * 6;
             scene.allPrimitives[1].material.color.X = 0.5f + (float)Math.Sin((double)a / 10.0d) * 0.5f;
@@ -41,16 +43,16 @@ namespace Application
             scene.allPrimitives[1].material.color.Z = 0.5f + (float)Math.Sin((double)a / 20.0d) * 0.5f;*/
             screen.Clear(0);
             //raytrace color for each pixel (hardcoded screen resolution!)
-
-            Parallel.For(0, 512, (y) =>
+            
+            Parallel.For(0, WIDTH, (y) =>
             //for (int y = 0; y < 512; y++)
             {
-                for (int x = 0; x < 512; x++)
+                for (int x = 0; x < WIDTH; x++)
                 {
                     Ray currentray = camera.getRay(x, y);
                     Vector3 color = PrimaryRay(currentray);
 
-                    screen.pixels[y * 1024 + x] = CreateColor((int)(color.X * 255), (int)(color.Y * 255), (int)(color.Z * 255));
+                    screen.pixels[y * WIDTH + x] = CreateColor((int)(color.X * 255), (int)(color.Y * 255), (int)(color.Z * 255));
                 }
             }
             );
@@ -79,6 +81,7 @@ namespace Application
                     Vector3 reflV = r.mirror(primitive.getNormal(dest));
                     //the 0.01f is a small delta to prevent the reflection hitting the object that reflected the ray again
                     Ray nray = new Ray(dest + reflV * 0.01f, reflV);
+                    nray.refractionIndex = r.refractionIndex;
                     //combination of the color of the object and the color our reflectionray returns
                     reflectionColor = PrimaryRay(nray, depth - 1);
                     color = material.reflection * reflectionColor + (1 - material.reflection) * color;
@@ -118,9 +121,9 @@ namespace Application
         {
             float refrIndex = (ray.refractionIndex != 1.0f) ? refrIndex = 1 : refrIndex = primitive.material.refractionIndex;
             Vector3 normal = primitive.getNormal(dest);
-            float n12 = refrIndex / ray.refractionIndex;
+            float n12 = ray.refractionIndex / refrIndex;
             float cosTheta = Vector3.Dot(ray.Direction, normal);
-            float k = 1 - (n12 * n12) * (1 - (cosTheta * cosTheta));
+            float k = 1 - ((n12 * n12) * (1 - (cosTheta * cosTheta)));
             if (k < 0) return null;
 
             Vector3 dir = n12 * ray.Direction + normal * (n12 * cosTheta - (float)Math.Sqrt(k));
@@ -148,7 +151,7 @@ namespace Application
                 Vector3 dir = point - light.location;
                 Vector3 pointNormal = primitive.getNormal(point);
                 //only if a light source is not behind the point that needs shading
-                if (Vector3.Dot(dir, pointNormal) < 0 && Vector3.Dot(dir, dir) < 512)
+                if (Vector3.Dot(dir, pointNormal) < 0 && Vector3.Dot(dir, dir) < (WIDTH << 4))
                 {
                     //only if the distance of the light is not too far away                    
                     Vector3 normDir = dir.Normalized();
@@ -183,10 +186,7 @@ namespace Application
 
         public void debugOutput()
         {
-            //this should be made procedural to the screensize
-
-            GL.PushAttrib(AttribMask.ViewportBit); //Push current viewport attributes to a sta ck
-            GL.Viewport(512, 0, 512, 512); //Create a new viewport bottom left for the debug output.
+            //this should be made procedural to the screensize           
 
             //we dont want to texture our lines
             GL.Disable(EnableCap.Texture2D);
@@ -217,13 +217,12 @@ namespace Application
             GL.Color3(0.2f, 1.0f, 0.7f);
 
             //draw the rays of the 255 row with an interval of 64
-            
-                for (int x = 0; x <= 512; x += 128)
-                {
-                    Ray currentray = camera.getRay(x, 255);
-                    debugRay(camera.position, currentray, 4);
-                }
 
+            for (int x = 0; x <= WIDTH; x += 64)
+            {
+                Ray currentray = camera.getRay(x, WIDTH >> 1);
+                debugRay(camera.position, currentray, 8);
+            }
 
                 GL.Color3(0.4f, 1.0f, 0.4f);
                 GL.Vertex2(camera.p2.Xz);
@@ -235,10 +234,7 @@ namespace Application
                 primitive.debugOutput();
             }
 
-            //we want to texture stuff again and restor our viewport
-            GL.Enable(EnableCap.Texture2D);
-            GL.PopAttrib();//Reset to the old viewport.
-            GL.Viewport(0, 0, 1024, 512);
+            
         }
 
       
@@ -266,7 +262,15 @@ namespace Application
                 {
                     Ray nray = refract(intersected.intersectedPrimitive, ray, dest);
                     if (nray != null)
-                    debugRay(dest + nray.Direction * 0.01f, nray, depth - 1);
+                    {
+                        debugRay(dest, nray, depth - 1);
+                    }
+                    else
+                    {
+                        Vector3 m = ray.mirror(intersected.intersectedPrimitive.getNormal(dest));
+                        nray = new Ray(dest + m * 0.05f, m);
+                        debugRay(dest, nray, depth - 1);
+                    }
                     
                 }
             }            

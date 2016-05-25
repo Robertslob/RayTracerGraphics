@@ -56,7 +56,7 @@ namespace Application
             Bitmap bmp = new Bitmap(fileName);
             width = bmp.Width;
             height = bmp.Height;
-            pixels = new int[width * height];
+            pixels = new int[width * height];            
             BitmapData data = bmp.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             IntPtr ptr = data.Scan0;
             System.Runtime.InteropServices.Marshal.Copy(data.Scan0, pixels, 0, width * height);

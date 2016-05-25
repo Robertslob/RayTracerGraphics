@@ -27,7 +27,7 @@ namespace Application
 			GL.Hint( HintTarget.PerspectiveCorrectionHint, HintMode.Nicest );
 			ClientSize = new Size( 1024, 512 );
 			raytracer = new Raytracer();
-			raytracer.screen = new Surface( Width, Height );
+			raytracer.screen = new Surface( Raytracer.WIDTH, Raytracer.WIDTH);
 			Sprite.target = raytracer.screen;
 			screenID = raytracer.screen.GenTexture();
 			camera = raytracer.Init();
@@ -72,6 +72,8 @@ namespace Application
 			}
             
             //renders the rays
+            int box = Math.Min(Width, Height);
+            GL.Viewport(0, 0, box, box);
             raytracer.Render();			
 			
 			// clear window contents            
@@ -112,8 +114,14 @@ namespace Application
             GL.Clear(ClearBufferMask.DepthBufferBit);
 
             //renders the debug
+            GL.PushAttrib(AttribMask.ViewportBit); //Push current viewport attributes to a sta ck
+            GL.Viewport(Width >> 1, 0, box, box); //Create a new viewport bottom left for the debug output.
             raytracer.debugOutput();
-
+            //we want to texture stuff again and restor our viewport
+            
+            GL.PopAttrib();//Reset to the old viewport.
+            GL.Enable(EnableCap.Texture2D);
+            //GL.Viewport(0, 0, , 512);
             //tell openTK we are gonna work on or next frame
             SwapBuffers();
 
