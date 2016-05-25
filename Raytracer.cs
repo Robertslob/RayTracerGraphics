@@ -25,6 +25,7 @@ namespace Application
 
         public Camera Init()
         {
+            Material.loadHdr("../../assets/stpeters_probe.float", 1500);
             scene = new Scene();
             camera = new Camera(new Vector3(2.5f, 2.5f, 2.5f), new Vector3(-0.612f, -0.415f, -0.674f));
             camera.UpdatePlane();
@@ -61,8 +62,9 @@ namespace Application
         private Vector3 PrimaryRay(Ray r, int depth = 10)
         {
             Intersection intersected = scene.intersectScene(r);
-            Vector3 color = new Vector3(.4f, 0.4f, 1);
-
+            Vector3 color = Material.getHemiSphereColor(r.Origin + r.Direction * intersected.intersectionDistance, Vector3.Zero);
+            //Vector3 color = new Vector3(0.4f, 0.3f, 0.7f);
+            if (depth == 0) return Vector3.Zero;
             Primitive primitive = intersected.intersectedPrimitive;
             if (primitive != null)
             {
@@ -72,7 +74,16 @@ namespace Application
                 Vector3 dest = r.Origin + r.Direction * intersected.intersectionDistance;
 
                 Vector3 illumination = calculateillumination(dest, primitive);
-                color = material.getpatternColor(dest) * illumination;
+                if (primitive.GetType() == typeof(Sphere)) //For texture on sphere.
+                {
+                    color = material.getSphereColor(dest, primitive.position) * illumination;
+                }
+                else
+                {
+                    color = material.getpatternColor(dest) * illumination;
+                }
+
+                //Get reflection and refrection vectors.
                 Vector3 reflectionColor = Vector3.Zero;
                 Vector3 refractionColor = Vector3.Zero;
 
@@ -81,36 +92,37 @@ namespace Application
                     Vector3 reflV = r.mirror(primitive.getNormal(dest));
                     //the 0.01f is a small delta to prevent the reflection hitting the object that reflected the ray again
                     Ray nray = new Ray(dest + reflV * 0.01f, reflV);
-                    nray.refractionIndex = r.refractionIndex;
+                    nray.refractionIndex = r.refractionIndex; //Set the refraction index of the ray.
                     //combination of the color of the object and the color our reflectionray returns
                     reflectionColor = PrimaryRay(nray, depth - 1);
+                    //reflectionColor = material.reflection * reflectionColor + (1 - material.reflection) * color;
                     color = material.reflection * reflectionColor + (1 - material.reflection) * color;
                 }
 
+                //If there is refraction...
                 if (material.refraction > 0 && depth > 0)
                 {
-                    float Rf = (float)Math.Pow((material.refractionIndex - r.refractionIndex) / (material.refractionIndex + r.refractionIndex), 2);
-
-                    Ray refractionRay = refract(primitive, r, dest);
+                    Ray refractionRay = refract(primitive, r, dest);//calculate refraction ray.
                     if (refractionRay != null)
                     {
-                        if (material.reflection == 0)
+                        if (material.reflection == 0) //If we have no reflection calculated...
                         {
                             refractionColor = PrimaryRay(refractionRay, depth - 1);
                         }
                         else
                         {
-                            float freschnell = Rf + (1 - Rf) * (float)Math.Pow(Vector3.Dot(primitive.getNormal(dest), r.Direction), 5);
-                            refractionColor = (1 - freschnell) * reflectionColor + freschnell * PrimaryRay(refractionRay, depth - 1);
+                            float Rf = (float)Math.Pow((r.refractionIndex - material.refractionIndex) / (r.refractionIndex + material.refractionIndex), 2);
+                            float fresnel = Rf + (1 - Rf) * (float)Math.Pow(1 - Math.Abs(Vector3.Dot(primitive.getNormal(dest), -r.Direction)), 5);//calculate fresnel index
+                            refractionColor = fresnel * reflectionColor + (1 -fresnel) * PrimaryRay(refractionRay, depth - 1);
                         }
                     }
                     else
                     {
+                        //If there is no refraction, then there is reflection!
                         refractionColor = reflectionColor;
                     }
-                    color = material.refraction * refractionColor + (1 - material.refraction) * color;
-                }
-                
+                    color = (material.refraction * refractionColor + (1 - material.refraction) * color);//set color to refraction.                    
+                }               
                 
             }
             
@@ -119,26 +131,25 @@ namespace Application
 
         public Ray refract(Primitive primitive, Ray ray, Vector3 dest)
         {
+            //cheat, if the current refraction of the ray is not 1, it means it is in something.
             float refrIndex = (ray.refractionIndex != 1.0f) ? refrIndex = 1 : refrIndex = primitive.material.refractionIndex;
             Vector3 normal = primitive.getNormal(dest);
+            //calculate n1/n2
             float n12 = ray.refractionIndex / refrIndex;
-            float cosTheta = Vector3.Dot(ray.Direction, normal);
+            //calculate cos(theta)
+            float cosTheta = Math.Abs(Vector3.Dot(-ray.Direction, normal)); 
+            
+            //check if the refraction hasn't reached its critical point.
             float k = 1 - ((n12 * n12) * (1 - (cosTheta * cosTheta)));
             if (k < 0) return null;
 
+            //refract.
             Vector3 dir = n12 * ray.Direction + normal * (n12 * cosTheta - (float)Math.Sqrt(k));
 
             dir.Normalize();
-            Ray nray = new Ray(dest + 0.012f * dir, dir);
-
-            if (cosTheta > 0)
-            {
-                nray.refractionIndex = primitive.material.refractionIndex;
-            }
-            else
-            {
-                nray.refractionIndex = 1;
-            }
+            Ray nray = new Ray(dest + 0.012f * dir, dir);            
+            nray.refractionIndex = primitive.material.refractionIndex;
+            
             return nray;
         }
 
@@ -212,7 +223,7 @@ namespace Application
             GL.Vertex2((camera.position.Xz + sv1));
 
             GL.Vertex2(camera.position.Xz);
-            GL.Vertex2((camera.position.Xz + sv2));            
+            GL.Vertex2((camera.position.Xz + sv2));
 
             GL.Color3(0.2f, 1.0f, 0.7f);
 
@@ -221,23 +232,19 @@ namespace Application
             for (int x = 0; x <= WIDTH; x += 64)
             {
                 Ray currentray = camera.getRay(x, WIDTH >> 1);
-                debugRay(camera.position, currentray, 8);
+                debugRay(camera.position, currentray, 2);
             }
 
-                GL.Color3(0.4f, 1.0f, 0.4f);
-                GL.Vertex2(camera.p2.Xz);
-                GL.Vertex2(camera.p3.Xz);
-                GL.End();
+            GL.Color3(0.4f, 1.0f, 0.4f);
+            GL.Vertex2(camera.p2.Xz);
+            GL.Vertex2(camera.p3.Xz);
+            GL.End();
 
             foreach (Primitive primitive in scene.allPrimitives)
             {
                 primitive.debugOutput();
             }
-
-            
-        }
-
-      
+        }     
 
         private void debugRay(Vector3 pos, Ray ray, int depth)
         {
@@ -247,7 +254,7 @@ namespace Application
             GL.Color3(0.4f, 1.0f, 0.4f);
 
             GL.Vertex2(pos.Xz);
-            GL.Vertex2(dest.Xz);            
+            GL.Vertex2(dest.Xz);
             if (intersected.intersectedPrimitive != null && depth > 0)
             {
                 debugshadowRay(dest);
@@ -255,10 +262,11 @@ namespace Application
                 {
                     Vector3 m = ray.mirror(intersected.intersectedPrimitive.getNormal(dest));
                     Ray nray = new Ray(dest + m * 0.05f, m);
+                    nray.refractionIndex = ray.refractionIndex;
                     debugRay(dest, nray, depth - 1);
                 }
-
-                if (intersected.intersectedPrimitive.material.refraction > 0 && depth > 0)
+                Material material = intersected.intersectedPrimitive.material;
+                if (material.refraction > 0 && depth > 0)
                 {
                     Ray nray = refract(intersected.intersectedPrimitive, ray, dest);
                     if (nray != null)
@@ -267,13 +275,14 @@ namespace Application
                     }
                     else
                     {
+
                         Vector3 m = ray.mirror(intersected.intersectedPrimitive.getNormal(dest));
                         nray = new Ray(dest + m * 0.05f, m);
                         debugRay(dest, nray, depth - 1);
                     }
-                    
+
                 }
-            }            
+            }
         }
 
         private void debugshadowRay(Vector3 pos)

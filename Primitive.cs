@@ -92,8 +92,7 @@ namespace Application
         public override Vector3 getNormal(Vector3 positionOnPrimitive)
         {
             return (positionOnPrimitive-position).Normalized();
-        }
-        
+        }        
     }
 
     public class Plane : Primitive
@@ -102,7 +101,7 @@ namespace Application
         public Plane(Vector3 normal, Vector3 position, Material material)
             : base(material,position)
         {
-            this.normal = normal;
+            this.normal = normal.Normalized();
         }
 
         public override float intersects(Ray r)

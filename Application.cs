@@ -132,10 +132,10 @@ namespace Application
         public void cameraMovement()
         {
             var state = OpenTK.Input.Keyboard.GetState();
-            Matrix4 my = Matrix4.CreateRotationY(-0.02f);
-            Matrix4 my2 = Matrix4.CreateRotationY(0.02f);
-            Matrix4 mx = Matrix4.CreateFromAxisAngle(camera.left, -0.2f);
-            Matrix4 mx2 = Matrix4.CreateFromAxisAngle(camera.left, 0.2f);
+            Matrix4 my = Matrix4.CreateRotationY(-0.1f);
+            Matrix4 my2 = Matrix4.CreateRotationY(0.1f);
+            Matrix4 mx = Matrix4.CreateFromAxisAngle(camera.left, -0.1f);
+            Matrix4 mx2 = Matrix4.CreateFromAxisAngle(camera.left, 0.1f);
 
             //rotate the camera with the pijltjestoetsen
             if (state[Key.Left])

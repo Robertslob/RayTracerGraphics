@@ -15,17 +15,20 @@ namespace Application
         public Scene()
         {
             //all the primitives that are present in our scene
-            allLights.Add(new Light(new Vector3(0, 10, 0), new Vector3(150, 150, 150)));
-            allLights.Add(new Light(new Vector3(5, 10, 5), new Vector3(50, 50, 5)));
-            allPrimitives.Add(new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material(new Vector3(0.2f, 0.2f, 0.3f), 0.0f, 0.1f, true)));
-            allPrimitives.Add(new Sphere(new Vector3(0, 1, 0), 1, new Material(new Vector3(1, 1, 1), 1.0f, 0.001f, false)));         
-            allPrimitives.Add(new Sphere(new Vector3(-2, 1, 0), 1, new Material(new Vector3(0.5f, 0, 0), 0.0f, 0.0f, false)));
-            allPrimitives.Add(new Sphere(new Vector3(2, 1, 0), 1, new Material(new Vector3(0, 0, 0.8f), 0.0f, 0.0f, false)));
+            allLights.Add(new Light(new Vector3(-5, 1, -5), new Vector3(150, 150, 150)));
+            allLights.Add(new Light(new Vector3(5, 10, 5), new Vector3(50, 50, 50)));
+            allLights.Add(new Light(new Vector3(5, 1, -5), new Vector3(50, 50, 50)));
+            allPrimitives.Add(new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material(new Vector3(0.2f, 0.2f, 0.3f), 0f, 1f, 0.5f, true)));            
+            allPrimitives.Add(new Sphere(new Vector3(0, 1, 0), 1, new Material(new Vector3(1, 0, 1), 1f, 1.3f, 0.0f, false)));         
+            allPrimitives.Add(new Sphere(new Vector3(-2, 1, 0), 1, new Material(new Vector3(0.5f, 0, 0), 0.0f, 1, 1f, false)));
+            //allPrimitives.Add(new Sphere(new Vector3(2, 1, 0), 1, new Material(new Vector3(0, 0, 0.8f), 0.0f, 0.0f, true)));            
+            allPrimitives.Add(new Sphere(new Vector3(2, 1, 0), 1, new Material("../../assets/2.jpg", 0.2f)));            
+            
         }
 
         public Intersection intersectScene(Ray ray)
         {
-            //very bad way to make this work...
+            //very bad way to make this work... but it works.
             float closestDistance = 1000000;
             Primitive closestPrimitive = null;
             float currentDistance;
