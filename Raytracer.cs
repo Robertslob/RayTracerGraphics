@@ -16,7 +16,8 @@ namespace Application
         public Camera camera;
         public Scene scene;
 
-        public static int WIDTH = 512 >> 1;
+        public static int WIDTH = 512 << 1;
+        public static int MAXDEPTH = 10;
 
         int CreateColor(int red, int green, int blue)
         {
@@ -51,7 +52,7 @@ namespace Application
                 for (int x = 0; x < WIDTH; x++)
                 {
                     Ray currentray = camera.getRay(x, y);
-                    Vector3 color = PrimaryRay(currentray);
+                    Vector3 color = PrimaryRay(currentray, MAXDEPTH);
 
                     screen.pixels[y * WIDTH + x] = CreateColor((int)(color.X * 255), (int)(color.Y * 255), (int)(color.Z * 255));
                 }
@@ -59,7 +60,7 @@ namespace Application
             );
         }
 
-        private Vector3 PrimaryRay(Ray r, int depth = 10)
+        private Vector3 PrimaryRay(Ray r, int depth)
         {
             Intersection intersected = scene.intersectScene(r);
             Vector3 color = Material.getHemiSphereColor(r.Origin + r.Direction * intersected.intersectionDistance, Vector3.Zero);
@@ -238,7 +239,7 @@ namespace Application
             for (int x = 0; x <= WIDTH; x += 64)
             {
                 Ray currentray = camera.getRay(x, WIDTH >> 1);
-                debugRay(camera.position, currentray, 2);
+                debugRay(camera.position, currentray, MAXDEPTH);
             }
 
             GL.Color3(0.4f, 1.0f, 0.4f);
