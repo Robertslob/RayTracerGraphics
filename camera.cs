@@ -30,6 +30,9 @@ namespace Application
             up = Vector3.UnitY;
             left = Vector3.Cross(direction, up);
             up = Vector3.Cross(left, direction);
+
+            left.Normalize();
+            up.Normalize();
             //linksonder
             p1 = position + (direction * distancePlane) + left - up;
             //linksboven
