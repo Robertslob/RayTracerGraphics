@@ -16,7 +16,7 @@ namespace Application
         public Camera camera;
         public Scene scene;
 
-        public static int WIDTH = 512 << 1;
+        public static int WIDTH = 512 >> 1;
         public static int MAXDEPTH = 10;
 
         int CreateColor(int red, int green, int blue)
@@ -75,14 +75,7 @@ namespace Application
                 Vector3 dest = r.Origin + r.Direction * intersected.intersectionDistance;
 
                 Vector3 illumination = calculateillumination(dest, primitive);
-                if (primitive.GetType() == typeof(Sphere)) //For texture on sphere.
-                {
-                    color = material.getSphereColor(dest, primitive.position) * illumination;
-                }
-                else
-                {
-                    color = material.getpatternColor(dest) * illumination;
-                }
+                color = material.getpatternColor(dest, primitive) * illumination;
 
                 //Get reflection and refrection vectors.
                 Vector3 reflectionColor = Vector3.Zero;
