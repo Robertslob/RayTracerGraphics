@@ -123,6 +123,63 @@ namespace Application
         }
     }
 
+    public class Triangle : Primitive
+    {
+        Vector3 position2, position3;
+        Vector3 normal;        
+
+        public Triangle(Vector3 position, Vector3 pos2, Vector3 pos3, Material material)
+            : base(material, position)
+        {
+            position2 = pos2;
+            position3 = pos3;
+            normal = Vector3.Normalize(Vector3.Cross((position2 - position), (position3 - position2)));
+        }
+
+        public override void debugOutput()
+        {
+        }
+
+        // Möller–Trumbore https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
+        public override float intersects(Ray r)
+        {
+            float EPSILON = 0.000001f;
+
+            Vector3 e1 = position2 - position;
+            Vector3 e2 = position3 - position;
+
+            Vector3 P = Vector3.Cross(r.Direction, e2);
+            float det = Vector3.Dot(e1, P);
+
+            if (det > -EPSILON && det < EPSILON)
+                return 0.0f;
+            float invDet = 1.0f / det;
+
+            Vector3 T = r.Origin - position;
+
+            float u = Vector3.Dot(T, P) * invDet;
+            if (u < 0.0f || u > 1.0f) return 0.0f;
+
+            Vector3 Q = Vector3.Cross(T, e1);
+
+            float v = Vector3.Dot(r.Direction, Q) * invDet;
+            if (v < 0.0f || v + u > 1.0f) return 0.0f;
+
+            float t = Vector3.Dot(e2, Q) * invDet;
+
+            if (t > EPSILON)
+                return t;
+
+            return 0;
+        }
+
+        public override Vector3 getNormal(Vector3 positionOnPrimitive)
+        {
+            return normal;
+        }
+
+    }
+
     //whitted-style ray tracer only has point light (in its basic form)
     public class Light
     {
