@@ -133,7 +133,7 @@ namespace Application
         {
             position2 = pos2;
             position3 = pos3;
-            normal = Vector3.Normalize(Vector3.Cross((position2 - position), (position3 - position2)));
+            normal = Vector3.Cross((position3 - position), (position2 - position)).Normalized();
         }
 
         public override void debugOutput()
