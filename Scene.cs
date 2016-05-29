@@ -11,8 +11,13 @@ namespace Application
     {
         public List<Primitive> allPrimitives = new List<Primitive>();
         public List<Light> allLights = new List<Light>();
-        public AABB sceneBox;
         private Plane floor;
+
+        //for the acceleration structure
+        public List<BVHNode> nodePool = new List<BVHNode>();
+        public List<int> primitiveIndexes = new List<int>();
+        BVHNode root;
+        
 
         public Scene()
         {
@@ -30,53 +35,77 @@ namespace Application
             allPrimitives.Add(new Triangle(new Vector3(4, 1, 1), new Vector3(3, 2, 1), new Vector3(3.5f, 0, 0), new Material(new Vector3(0.0f, 0.5f, 0.2f), 0.1f, 0.3f, 0.05f, false)));
 
             floor = (new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material("../../assets/1.jpg", 0.0f)));            
-
-
-            buildSceneAABB();            
+            
+            buildBVH();
         }
 
-        public bool sceneboxIntersection(Ray r)
+        public void buildBVH()
         {
-            return sceneBox.intersect(r);
-        }
-
-        private void buildSceneAABB()
-        {
-            sceneBox.minPoint = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
-            sceneBox.maxPoint = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
-            foreach (Primitive primitive in allPrimitives)
+            root.bounds.minPoint = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
+            root.bounds.maxPoint = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
+          
+            //we set the right bounds for our root and also fill our primitive indexarray with unsorted primitive indexes
+            for (int j = 0; j < allPrimitives.Count(); j++)
             {
-                //set minimum and maximum of the primitive each dimension at a time
-                for (int i = 0; i < 3; i++)
-                {
-                    sceneBox.minPoint[i] = Math.Min(primitive.box.minPoint[i], sceneBox.minPoint[i]);
+                root.bounds.adjust(allPrimitives[j].box);
 
-                    sceneBox.maxPoint[i] = Math.Max(primitive.box.maxPoint[i], sceneBox.maxPoint[i]);
-                }
+                //identity keyvalue we will sort while subdividing
+                primitiveIndexes.Add(j);
             }
+
+            //just in case our whole scene consists of 3 primitives
+            root.isleaf = true;
+            root.first = 0;
+            root.count = (uint)primitiveIndexes.Count();
+
+            nodePool.Add(root);
+            //subdivide the root to create the whole tree structure.
+            root.subdivide(nodePool, primitiveIndexes, allPrimitives);
         }
 
         public Intersection intersectScene(Ray ray)
         {
+            Queue<int> searchQueue = new Queue<int>();
+            //add the root in the searchqueue
+            searchQueue.Enqueue(0);
+
             //very bad way to make this work... but it works.
             float closestDistance = 1000000;
             Primitive closestPrimitive = null;
             float currentDistance;
 
-            if(sceneboxIntersection(ray)){
-                foreach (Primitive primitive in allPrimitives)
+            //if we have more nodes to search
+            while (searchQueue.Count != 0)
+            {
+                int parentInt = searchQueue.Dequeue();
+                BVHNode parentNode = nodePool[parentInt];
+                //we only continue if a ray intersects with the parents aabb
+                if (parentNode.bounds.intersect(ray))
                 {
-                    currentDistance = primitive.intersects(ray);
-                    //we loop over all primitives and return the intersect of the closest one which we intersect
-                    if (closestDistance > currentDistance && currentDistance > 0)
+                    //if it is not a leaf we just enqueue its children so we can analyze them later on
+                    if (!parentNode.isleaf)
                     {
-                        closestDistance = currentDistance;
-                        closestPrimitive = primitive;
+                        searchQueue.Enqueue((int)parentNode.left);
+                        searchQueue.Enqueue((int)parentNode.right);
+                    }
+                    //if it is a leaf we have to check every primitive that it owns
+                    else
+                    {
+                        for (int n = (int)parentNode.first; n < parentNode.first + parentNode.count; n++)
+                        {
+                            currentDistance = allPrimitives[primitiveIndexes[n]].intersects(ray);
+                            //we loop over all primitives and return the intersect of the closest one which we intersect
+                            if (closestDistance > currentDistance && currentDistance > 0)
+                            {
+                                closestDistance = currentDistance;
+                                closestPrimitive = allPrimitives[primitiveIndexes[n]];
+                            }
+                        }
                     }
                 }
-            }            
-
-            //we eventually check if we hit the floor
+            }
+            
+            //eventually we also check if we hit the floor
             currentDistance = floor.intersects(ray);
             if (closestDistance > currentDistance && currentDistance > 0)
             {
@@ -86,11 +115,7 @@ namespace Application
 
             //returns the closest primitive if there is an intersection, else it returns null
             return new Intersection(closestDistance, closestPrimitive);
-        }
-
-        
-
-
+        }    
     }
 
     //contains the result of an intersection
