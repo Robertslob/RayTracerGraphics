@@ -75,7 +75,7 @@ namespace Application
             foreach (int[] face in faces)
             {
                 //Console.WriteLine((objectPosition + 0.000001f * verts[face[0]]));
-                allPrimitives.Add(new Triangle(objectPosition + 0.000001f * verts[face[0]], objectPosition + 0.000001f * verts[face[1]], objectPosition + 0.000001f * verts[face[2]], new Material(new Vector3(0.3f, 0.5f, 0.2f), 0, 0, 1, false)));
+                allPrimitives.Add(new Triangle(objectPosition + 0.000001f * verts[face[0]], objectPosition + 0.000001f * verts[face[1]], objectPosition + 0.000001f * verts[face[2]], new Material(new Vector3(0.3f, 0.5f, 0.2f), 0, 1.3f, 0.0f, false)));
             }
         }
 
@@ -131,13 +131,13 @@ namespace Application
                         float rightT = parentNode.right.bounds.intersect(ray);
                         if (leftT > rightT) //The left side is intersected first, so start looking at the left side first.
                         {                            
-                            if (rightT > 0) searchQueue.Push(parentNode.right);
                             if (leftT > 0) searchQueue.Push(parentNode.left);
+                            if (rightT > 0) searchQueue.Push(parentNode.right);
                         }
                         else //The right side is intersected first, so start looking at the right side first.
                         {
-                            if (leftT > 0) searchQueue.Push(parentNode.left);
                             if (rightT > 0) searchQueue.Push(parentNode.right);
+                            if (leftT > 0) searchQueue.Push(parentNode.left);
                         }
                     }
                     //if it is a leaf we have to check every primitive that it owns
