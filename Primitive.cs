@@ -154,6 +154,7 @@ namespace Application
             }
         }
 
+        // Draw the 3 edges of the Triangle
         public override void debugOutput()
         {
             GL.Begin(PrimitiveType.LineLoop);
