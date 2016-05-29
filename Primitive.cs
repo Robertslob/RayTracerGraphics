@@ -12,6 +12,7 @@ namespace Application
     {
         public Material material;
         public Vector3 position;
+        public AABB box;
 
         public Primitive(Material material, Vector3 position)
         {
@@ -35,6 +36,8 @@ namespace Application
             : base(material, position)
         {            
             this.radius = radius;
+            box.minPoint = position - new Vector3(radius, radius, radius);
+            box.maxPoint = position + new Vector3(radius, radius, radius);
         }
 
         public override float intersects(Ray r)
@@ -134,6 +137,21 @@ namespace Application
             position2 = pos2;
             position3 = pos3;
             normal = Vector3.Cross((position3 - position), (position2 - position)).Normalized();
+
+
+            box.minPoint = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
+            box.maxPoint = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
+            //set minimum and maximum of the primitive each dimension at a time
+            for (int i = 0; i < 3; i++)
+            {
+                box.minPoint[i] = Math.Min(position[i], box.minPoint[i]);
+                box.minPoint[i] = Math.Min(position2[i], box.minPoint[i]);
+                box.minPoint[i] = Math.Min(position3[i], box.minPoint[i]);
+
+                box.maxPoint[i] = Math.Max(position[i], box.maxPoint[i]);
+                box.maxPoint[i] = Math.Max(position2[i], box.maxPoint[i]);
+                box.maxPoint[i] = Math.Max(position3[i], box.maxPoint[i]);
+            }
         }
 
         public override void debugOutput()
