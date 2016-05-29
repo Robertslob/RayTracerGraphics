@@ -203,7 +203,7 @@ namespace Application
             GL.Disable(EnableCap.Texture2D);
 
             GL.MatrixMode(MatrixMode.Projection);
-            Matrix4 m = Matrix4.CreateScale(1 / 8.0f);
+            Matrix4 m = Matrix4.CreateScale(1 / 10.0f);
             GL.LoadMatrix(ref m);
 
 
