@@ -16,7 +16,7 @@ namespace Application
         public Camera camera;
         public Scene scene;
 
-        public static int WIDTH = 512 >> 3;
+        public static int WIDTH = 512 >> 0;
         public static int MAXDEPTH = 5;
 
         int CreateColor(int red, int green, int blue)
@@ -28,13 +28,13 @@ namespace Application
         {
             Material.loadHdr("../../assets/stpeters_probe.float", 1500);
             scene = new Scene();
-            camera = new Camera(new Vector3(2.5f, 2.5f, 2.5f), new Vector3(-.612f, -.415f, -0.674f));
+            camera = new Camera(new Vector3(2.5f, 2.5f, 2.5f), new Vector3(-0.612f, -0.415f, -0.674f));
             camera.UpdatePlane();
             return camera;
         }
 
         // this guy is called once every frame and draws everything on the screen -- CORE OF THE RAYTRACER!
-        //int a = 0;
+        int a = 0;
         public void Render()
         {
             /*a++;
@@ -154,7 +154,7 @@ namespace Application
         }
 
         public Vector3 calculateillumination(Vector3 point, Primitive primitive)
-        {
+        {            
             Vector3 illumination = Vector3.Zero;
             //foreach light we check if there is nothing in the way to our destination point 
             foreach (Light light in scene.allLights)
@@ -186,13 +186,15 @@ namespace Application
             //float DistancetoPoint = length*.99f;
             float currentDistance;
 
+            /*
             foreach (Primitive primitive in scene.allPrimitives)
             {
                 currentDistance = primitive.intersects(r);
                 if (currentDistance * currentDistance < length * 0.999f && currentDistance > 0)
                     return true;
-            }
-            return false;
+            }*/
+            return (scene.intersectScene(r).intersectedPrimitive == null) ;
+            //return false;            
         }
 
         public void debugOutput()
@@ -203,7 +205,7 @@ namespace Application
             GL.Disable(EnableCap.Texture2D);
 
             GL.MatrixMode(MatrixMode.Projection);
-            Matrix4 m = Matrix4.CreateScale(1 / 10.0f);
+            Matrix4 m = Matrix4.CreateScale(1 / 8.0f);
             GL.LoadMatrix(ref m);
 
 
@@ -275,7 +277,6 @@ namespace Application
                     }
                     else
                     {
-
                         Vector3 m = ray.mirror(intersected.intersectedPrimitive.getNormal(dest));
                         nray = new Ray(dest + m * 0.05f, m);
                         debugRay(dest, nray, depth - 1);

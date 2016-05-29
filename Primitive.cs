@@ -129,14 +129,22 @@ namespace Application
     public class Triangle : Primitive
     {
         Vector3 position2, position3;
-        Vector3 normal;        
+        Vector3 normal;
 
+        public Triangle(Vector3 pos1, Vector3 pos2, Vector3 pos3, Vector3 norm1, Vector3 norm2, Vector3 norm3, Material material)
+            : base(material, pos1)
+        {
+            position2 = pos2;
+            position3 = pos3;
+            normal = (norm1 + norm2 + norm3) * 0.333333f;
+        }
         public Triangle(Vector3 position, Vector3 pos2, Vector3 pos3, Material material)
             : base(material, position)
         {
             position2 = pos2;
             position3 = pos3;
-            normal = Vector3.Cross((position3 - position), (position2 - position)).Normalized();
+            normal = Vector3.Cross((position3 - position), (position2 - position));
+            normal.Normalize();
 
 
             box.minPoint = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
@@ -157,34 +165,13 @@ namespace Application
         // Draw the 3 edges of the Triangle
         public override void debugOutput()
         {
-            GL.Begin(PrimitiveType.LineLoop);
+            GL.Begin(PrimitiveType.LineStrip);
             GL.Color3(material.color);
-            float xVertex1 = (position2.X - position.X) / 300.0f;
-            float zVertex1 = (position2.Z - position.Z) / 300.0f;
-            for (int i = 0; i <= 300; i++)
-            {
-                float x = xVertex1 * i;
-                float z = zVertex1 * i;
-                GL.Vertex2(position.X + x, position.Z + z);
-            }
-            
-            float xVertex2 = (position3.X - position2.X) / 300.0f;
-            float zVertex2 = (position3.Z - position2.Z) / 300.0f;
-            for (int i = 0; i <= 300; i++)
-            {
-                float x = xVertex2 * i;
-                float z = zVertex2 * i;
-                GL.Vertex2(position2.X + x, position2.Z + z);
-            }
-            
-            float xVertex3 = (position.X - position3.X) / 300.0f;
-            float zVertex3 = (position.Z - position3.Z) / 300.0f;
-            for (int i = 0; i <= 300; i++)
-            {
-                float x = xVertex3 * i;
-                float z = zVertex3 * i;
-                GL.Vertex2(position3.X + x, position3.Z + z);
-            }
+            GL.Vertex2(position.Xz);
+            GL.Vertex2(position2.Xz);
+            GL.Vertex2(position3.Xz);
+            GL.Vertex2(position.Xz);
+      
             GL.End();
         }
 
@@ -222,8 +209,8 @@ namespace Application
         }
 
         public override Vector3 getNormal(Vector3 positionOnPrimitive)
-        {
-            return normal;
+        {            
+            return -normal;
         }
 
     }

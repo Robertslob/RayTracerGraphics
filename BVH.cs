@@ -43,11 +43,28 @@ namespace Application
                 int bestPrimitiveOfPlane = 0;
                 bestPrimitiveOfPlane = node.first + (node.count >> 1);
                 //foreach splitplane that we can imagine with the primitives of this node
-                getBestSplitPlane(primitiveIndex, allprimitives, node, ref bestCostFormation, ref bestPrimitiveOfPlane);
+                
+                bool x = getBestSplitPlane(primitiveIndex, allprimitives, node, ref bestCostFormation, ref bestPrimitiveOfPlane, Vector3.UnitX);
+                bool y = getBestSplitPlane(primitiveIndex, allprimitives, node, ref bestCostFormation, ref bestPrimitiveOfPlane, Vector3.UnitY);
+                bool z = getBestSplitPlane(primitiveIndex, allprimitives, node, ref bestCostFormation, ref bestPrimitiveOfPlane, Vector3.UnitZ);
 
+                int r;
                 //quicksort the index array with knowing our best plane and assign the according value to left and right and give them their primitives
                 //switch pivot to first position
-                int r = quickSortBVH(primitiveIndex, allprimitives, node, bestPrimitiveOfPlane);
+                if (z)
+                {
+                    r = quickSortBVH(primitiveIndex, allprimitives, node, bestPrimitiveOfPlane, Vector3.UnitZ);
+                }
+                else if (y)
+                {
+                    r = quickSortBVH(primitiveIndex, allprimitives, node, bestPrimitiveOfPlane, Vector3.UnitY);
+                }
+                else 
+                {
+                    r = quickSortBVH(primitiveIndex, allprimitives, node, bestPrimitiveOfPlane, Vector3.UnitX);
+                }
+                
+                //int r = quickSortBVH(primitiveIndex, allprimitives, node, bestPrimitiveOfPlane);
 
                 //subdivide both beginning with the left node
                 BVHNode leftNode = new BVHNode();
@@ -89,12 +106,13 @@ namespace Application
             }            
         }
 
-        private static void getBestSplitPlane(List<int> primitiveIndex, List<Primitive> allprimitives, BVHNode node, ref float bestCostFormation, ref int bestPrimitiveOfPlane)
+        private static bool getBestSplitPlane(List<int> primitiveIndex, List<Primitive> allprimitives, BVHNode node, ref float bestCostFormation, ref int bestPrimitiveOfPlane, Vector3 axis)
         {
+            bool better = false;
             for (int i = node.first; i < node.first + node.count; i++)
             {
                 //we get the x value of a splitplane
-                float splitX = allprimitives[primitiveIndex[(int)i]].position.X;
+                float split = Vector3.Dot(axis, allprimitives[primitiveIndex[(int)i]].position);
 
                 //we make two boundingboxes
                 AABB left;
@@ -112,7 +130,7 @@ namespace Application
                 {
                     Primitive currentPrimitive = allprimitives[primitiveIndex[(int)j]];
                     //primitves that are exactly on the plane are assigned to the left of the split plane
-                    if (currentPrimitive.position.X <= splitX)
+                    if (Vector3.Dot(axis, currentPrimitive.position) <= split)
                     {
                         leftCount++;
                         left.adjust(currentPrimitive.box);
@@ -130,23 +148,25 @@ namespace Application
                 {
                     bestCostFormation = costCurrentFormation;
                     bestPrimitiveOfPlane = (int)i;
+                    better = true;
                 }
             }
+            return better;
         }
 
-        private static int quickSortBVH(List<int> primitiveIndex, List<Primitive> allprimitives, BVHNode node, int bestPrimitiveOfPlane)
+        private static int quickSortBVH(List<int> primitiveIndex, List<Primitive> allprimitives, BVHNode node, int bestPrimitiveOfPlane, Vector3 axis)
         {
             int temp = primitiveIndex[bestPrimitiveOfPlane];
             primitiveIndex[bestPrimitiveOfPlane] = primitiveIndex[(int)node.first]; 
             primitiveIndex[(int)node.first] = temp;
             int r = (int)node.first; 
             int s = (int)(node.first + node.count) - 1;
-            float bestSplitX = allprimitives[primitiveIndex[r]].position.X;
+            float bestSplitX = Vector3.Dot(axis, allprimitives[primitiveIndex[r]].position);
 
             while (r < s)
             {
                 //if the primitive is on the left side of the best splitplane we found, then it should be behind our pivot
-                if (allprimitives[primitiveIndex[r + 1]].position.X <= bestSplitX)
+                if (Vector3.Dot(axis,allprimitives[primitiveIndex[r + 1]].position) <= bestSplitX)
                 {
                     temp = primitiveIndex[r]; primitiveIndex[r] = primitiveIndex[r + 1]; primitiveIndex[r + 1] = temp;
                     r++;
@@ -167,7 +187,7 @@ namespace Application
     {
         public Vector3 minPoint, maxPoint;
 
-        public bool intersect(Ray r)
+        public float intersect(Ray r)
         {
             //pretty costy and should really be stored for a ray
             float invX = 1.0f / r.Direction.X;
@@ -184,7 +204,9 @@ namespace Application
             float tmin = Math.Max(  Math.Max( Math.Min(minX, maxX), Math.Min(minY, maxY)), Math.Min(minZ, maxZ) );
             float tmax = Math.Min(  Math.Min( Math.Max(minX, maxX), Math.Max(minY, maxY)), Math.Max(minZ, maxZ) );
 
-            return tmax >= tmin;
+            if (tmax >= tmin) return tmin;
+            return -1;
+            
         }
 
         //adjusts this aabb to the union of itself and the parameter box

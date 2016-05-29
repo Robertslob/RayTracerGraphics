@@ -25,7 +25,7 @@ namespace Application
             //all the primitives that are present in our scene
             allLights.Add(new Light(new Vector3(0, 1, -5), new Vector3(150, 150, 150)));
             allLights.Add(new Light(new Vector3(10, 10, 5), new Vector3(50, 50, 50)));
-            allLights.Add(new Light(new Vector3(10, 1, -5), new Vector3(50, 50, 50)));
+            allLights.Add(new Light(new Vector3(10, 1, -5), new Vector3(50, 50, 50)));            
             //allPrimitives.Add(new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material(new Vector3(0.2f, 0.2f, 0.3f), 0f, 1f, 0.5f, true)));            
             //warning this takes like 5 min to load....!!!!!!
             
@@ -38,10 +38,10 @@ namespace Application
             allPrimitives.Add(new Sphere(new Vector3(-2, 1, 0), 1, new Material("../../assets/2.jpg", 0.2f)));*/
 
             //warning this takes like 5 min to load....!!!!!!
-            buildAsset("../../assets/pyramid.obj", new Vector3(-100, 1, 0));
-            //buildAsset("../../assets/bunny.obj", new Vector3(0, 1, 0));
+            //buildAsset("../../assets/pyramid.obj", new Vector3(-100, 1, 0));
+            buildAsset("../../assets/bunny.obj", new Vector3(2, 0, 0));
             // Test-Triangle
-            allPrimitives.Add(new Triangle(new Vector3(8, 1, 1), new Vector3(7, 2, 1), new Vector3(7.5f, 0, 0), new Material(new Vector3(0.0f, 0.5f, 0.2f), 0.1f, 0.3f, 0.05f, false)));
+            //allPrimitives.Add(new Triangle(new Vector3(8, 1, 1), new Vector3(7, 1, 1), new Vector3(7.5f, 0, 0), new Material(new Vector3(0.5f, 0.5f, 0.2f), 0.1f, 0.3f, 0.5f, false)));
 
             floor = (new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material("../../assets/1.jpg", 0.0f)));            
             
@@ -55,7 +55,7 @@ namespace Application
         public void buildAsset(string objectLocation, Vector3 objectPosition)
         {
 
-            var lines = File.ReadAllLines("../../assets/bunny.obj");
+            var lines = File.ReadAllLines(objectLocation);
             //List of double[]. Each entry of the list contains 3D vertex x,y,z in double array form
             var verts = lines.Where(l => Regex.IsMatch(l, @"^v(\s+-?\d+\.?\d+([eE][-+]?\d+)?){3,3}$"))
                 .Select(l => Regex.Split(l, @"\s+", RegexOptions.None).Skip(1).ToArray()) //Skip v
@@ -75,7 +75,7 @@ namespace Application
             foreach (int[] face in faces)
             {
                 //Console.WriteLine((objectPosition + 0.000001f * verts[face[0]]));
-                allPrimitives.Add(new Triangle(objectPosition + 0.000001f * verts[face[0]], objectPosition + 0.000001f * verts[face[1]], objectPosition + 0.000001f * verts[face[2]], new Material(new Vector3(0.0f, 1.5f, 0.2f), 0, 0, 0, false)));
+                allPrimitives.Add(new Triangle(objectPosition + 0.000001f * verts[face[0]], objectPosition + 0.000001f * verts[face[1]], objectPosition + 0.000001f * verts[face[2]], new Material(new Vector3(0.3f, 0.5f, 0.2f), 0, 0, 1, false)));
             }
         }
 
@@ -116,18 +116,29 @@ namespace Application
             Primitive closestPrimitive = null;
             float currentDistance;
 
-            //if we have more nodes to search
+            //if we have more nodes to search            
             while (searchQueue.Count != 0)
-            {                
+            {
+                
                 BVHNode parentNode = searchQueue.Pop();
                 //we only continue if a ray intersects with the parents aabb
-                if (parentNode.bounds.intersect(ray))
+                if (parentNode.bounds.intersect(ray) > 0)
                 {
                     //if it is not a leaf we just enqueue its children so we can analyze them later on
                     if (!parentNode.isleaf)
-                    {                        
-                        if (parentNode.left.bounds.intersect(ray)) searchQueue.Push(parentNode.left);
-                        if (parentNode.right.bounds.intersect(ray)) searchQueue.Push(parentNode.right);
+                    {
+                        float leftT = parentNode.left.bounds.intersect(ray);
+                        float rightT = parentNode.right.bounds.intersect(ray);
+                        if (leftT > rightT) //The left side is intersected first, so start looking at the left side first.
+                        {                            
+                            if (rightT > 0) searchQueue.Push(parentNode.right);
+                            if (leftT > 0) searchQueue.Push(parentNode.left);
+                        }
+                        else //The right side is intersected first, so start looking at the right side first.
+                        {
+                            if (leftT > 0) searchQueue.Push(parentNode.left);
+                            if (rightT > 0) searchQueue.Push(parentNode.right);
+                        }
                     }
                     //if it is a leaf we have to check every primitive that it owns
                     else
@@ -143,10 +154,13 @@ namespace Application
                                 closestPrimitive = allPrimitives[primitiveIndexes[n]];
                             }
                         }
+                        if (closestPrimitive != null)
+                        {
+                            break;
+                        }
                     }
-                }
-            }
-
+                }                
+            }            
             //eventually we also check if we hit the floor
             currentDistance = floor.intersects(ray);
             if (closestDistance > currentDistance && currentDistance > 0)
