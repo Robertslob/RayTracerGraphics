@@ -15,8 +15,7 @@ namespace Application
         public List<Light> allLights = new List<Light>();
         private Plane floor;
 
-        //for the acceleration structure
-        public List<BVHNode> nodePool = new List<BVHNode>();
+        //for the acceleration structure        
         public List<int> primitiveIndexes = new List<int>();
         BVHNode root;
         
@@ -28,23 +27,24 @@ namespace Application
             allLights.Add(new Light(new Vector3(5, 10, 5), new Vector3(50, 50, 50)));
             allLights.Add(new Light(new Vector3(5, 1, -5), new Vector3(50, 50, 50)));
             //allPrimitives.Add(new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material(new Vector3(0.2f, 0.2f, 0.3f), 0f, 1f, 0.5f, true)));            
-            allPrimitives.Add(new Sphere(new Vector3(0, 1, 0), 1, new Material(new Vector3(1, 0, 1), 1f, 1.3f, 0.0f, false)));         
+            /*allPrimitives.Add(new Sphere(new Vector3(0, 1, 0), 1, new Material(new Vector3(1, 0, 1), 1f, 1.3f, 0.0f, false)));         
             allPrimitives.Add(new Sphere(new Vector3(-2, 1, 0), 1, new Material(new Vector3(0.5f, 0, 0), 0.0f, 1, 1f, false)));
             allPrimitives.Add(new Sphere(new Vector3(-5, 1, 0), 1, new Material(new Vector3(1, 0, 1), 1f, 1.3f, 0.0f, false)));
             allPrimitives.Add(new Sphere(new Vector3(-10, 1, 0), 1, new Material(new Vector3(1, 0, 1), 1f, 1.3f, 0.0f, false)));
             allPrimitives.Add(new Sphere(new Vector3(-15, 1, 0), 1, new Material(new Vector3(1, 0, 1), 1f, 1.3f, 0.0f, false)));         
 
             //allPrimitives.Add(new Sphere(new Vector3(2, 1, 0), 1, new Material(new Vector3(0, 0, 0.8f), 0.0f, 0.0f, true)));            
-            allPrimitives.Add(new Sphere(new Vector3(2, 1, 0), 1, new Material("../../assets/2.jpg", 0.2f)));
+            allPrimitives.Add(new Sphere(new Vector3(2, 1, 0), 1, new Material("../../assets/2.jpg", 0.2f)));*/
 
             //warning this takes like 5 min to load....!!!!!!
-            //buildAsset("../../assets/bunny.obj", new Vector3(-100, 1, 0));
+            buildAsset("../../assets/bunny.obj", new Vector3(0, 1, 0));
             // Test-Triangle
             allPrimitives.Add(new Triangle(new Vector3(4, 1, 1), new Vector3(3, 2, 1), new Vector3(3.5f, 0, 0), new Material(new Vector3(0.0f, 0.5f, 0.2f), 0.1f, 0.3f, 0.05f, false)));
 
             floor = (new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material("../../assets/1.jpg", 0.0f)));            
             
             buildBVH();
+            Console.WriteLine("build BVH");
         }
 
         //this function is copied from here:
@@ -68,16 +68,24 @@ namespace Application
                 .Select(nums => new int[] { int.Parse(nums[0]) - 1, int.Parse(nums[1]) - 1, int.Parse(nums[2]) - 1 })
                 .ToList();
             Console.WriteLine(faces.Count.ToString());
+
+
             foreach (int[] face in faces)
             {
-                allPrimitives.Add(new Triangle(objectPosition + 200 * verts[face[0]], objectPosition + 200 * verts[face[1]], objectPosition + 200 * verts[face[2]], new Material(new Vector3(0.0f, 0.5f, 0.2f), 0, 0, 0, false)));
+                //Console.WriteLine((objectPosition + 0.000001f * verts[face[0]]));
+                allPrimitives.Add(new Triangle(objectPosition + 0.000001f * verts[face[0]], objectPosition + 0.000001f * verts[face[1]], objectPosition + 0.000001f * verts[face[2]], new Material(new Vector3(0.0f, 1.5f, 0.2f), 0, 0, 0, false)));
             }
         }
 
         public void buildBVH()
         {
+            root = new BVHNode();
             root.bounds.minPoint = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
             root.bounds.maxPoint = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
+
+            allPrimitives.Sort((Primitive p1, Primitive p2) => {
+                return p1.position.X.CompareTo(p2.position.X);
+            });
           
             //we set the right bounds for our root and also fill our primitive indexarray with unsorted primitive indexes
             for (int j = 0; j < allPrimitives.Count(); j++)
@@ -91,17 +99,15 @@ namespace Application
             //just in case our whole scene consists of 3 primitives
             root.isleaf = true;
             root.first = 0;
-            root.count = (uint)primitiveIndexes.Count();
-                        
-            nodePool.Add(root);
-            root.subdivide(nodePool, primitiveIndexes, allPrimitives, 0);
+            root.count = primitiveIndexes.Count();            
+            BVHNode.subdivide(root, primitiveIndexes, allPrimitives, 0);
         }
 
         public Intersection intersectScene(Ray ray)
         {
-            Queue<int> searchQueue = new Queue<int>();
+            Stack<BVHNode> searchQueue = new Stack<BVHNode>();
             //add the root in the searchqueue
-            searchQueue.Enqueue(0);
+            searchQueue.Push(root);
 
             //very bad way to make this work... but it works.
             float closestDistance = 1000000;
@@ -110,18 +116,16 @@ namespace Application
 
             //if we have more nodes to search
             while (searchQueue.Count != 0)
-            {
-                int parentInt = searchQueue.Dequeue();
-                BVHNode parentNode = nodePool[parentInt];
+            {                
+                BVHNode parentNode = searchQueue.Pop();
                 //we only continue if a ray intersects with the parents aabb
                 if (parentNode.bounds.intersect(ray))
                 {
                     //if it is not a leaf we just enqueue its children so we can analyze them later on
                     if (!parentNode.isleaf)
-                    {
-                        //Console.WriteLine("hey!");
-                        searchQueue.Enqueue((int)parentNode.left);
-                        searchQueue.Enqueue((int)parentNode.right);
+                    {                        
+                        if (parentNode.left.bounds.intersect(ray)) searchQueue.Push(parentNode.left);
+                        if (parentNode.right.bounds.intersect(ray)) searchQueue.Push(parentNode.right);
                     }
                     //if it is a leaf we have to check every primitive that it owns
                     else

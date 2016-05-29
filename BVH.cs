@@ -8,31 +8,90 @@ using System.Threading.Tasks;
 
 namespace Application 
 {
-    public struct BVHNode
+    public class BVHNode
     {
-        public uint left;
-        public uint right;
+        public BVHNode left;
+        public BVHNode right;
         public AABB bounds;
         public bool isleaf;
-        public uint first;
-        public uint count;
+        public int first;
+        public int count;
 
         public string toString()
         {
             return "left: " + left.ToString() + ", right: " + right.ToString() + ", count: " + count.ToString() + " en first: " + first.ToString();
         }
 
-        public void subdivide(List<BVHNode> nodePool, List<int> primitiveIndex, List<Primitive> allprimitives, int ownNodeIndex)
+        //Assuming allPrimitives is ordered by their x location.
+        public static void subdivide(BVHNode root, List<int> primitiveIndex, List<Primitive> allprimitives, int ownNodeIndex)
         {
-            //if a node has less than 3 primitives it is a leaf
-            if (this.count < 3) return;
+            //if a node has less than 3 primitives it is a leaf            
+            uint nodeCounter = 0;
+            Queue<BVHNode> toProcess = new Queue<BVHNode>();
+            toProcess.Enqueue(root);
+            while (toProcess.Count > 0)
+            {
+                nodeCounter++;
+                BVHNode node = toProcess.Dequeue();
+                if (node.count <= 7)
+                {                    
+                    continue;
+                }
 
-            //surface area heuristic, just x-axis
-            float bestCostFormation = bounds.getSurface();
-            int bestPrimitiveOfPlane = 0;
+                Console.WriteLine(node.count);
+                float bestCostFormation = node.bounds.getSurface() * node.count;
+                int bestPrimitiveOfPlane = 0;
+                bestPrimitiveOfPlane = node.first + (node.count >> 1);
+                //foreach splitplane that we can imagine with the primitives of this node
+                getBestSplitPlane(primitiveIndex, allprimitives, node, ref bestCostFormation, ref bestPrimitiveOfPlane);
 
-            //foreach splitplane that we can imagine with the primitives of this node
-            for (uint i = first; i < first + count; i++)
+                //quicksort the index array with knowing our best plane and assign the according value to left and right and give them their primitives
+                //switch pivot to first position
+                int r = quickSortBVH(primitiveIndex, allprimitives, node, bestPrimitiveOfPlane);
+
+                //subdivide both beginning with the left node
+                BVHNode leftNode = new BVHNode();
+                leftNode.isleaf = true;
+                leftNode.first = node.first;
+                leftNode.count = (r - node.first) + 1;
+
+                leftNode.bounds.minPoint = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
+                leftNode.bounds.maxPoint = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
+
+                //we set the right bounds for our left node
+                for (int l = (int)leftNode.first; l < leftNode.count + leftNode.first; l++)
+                {
+                    leftNode.bounds.adjust(allprimitives[primitiveIndex[l]].box);
+                }                
+                node.left = leftNode;                
+
+                //now the right node
+                BVHNode rightNode = new BVHNode();
+                rightNode.isleaf = true;
+                rightNode.first = r + 1;
+                rightNode.count = (node.count + node.first) - rightNode.first;
+
+                rightNode.bounds.minPoint = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
+                rightNode.bounds.maxPoint = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
+
+                //we set the right bounds for our right node
+                for (int l = (int)rightNode.first; l < rightNode.count + rightNode.first; l++)
+                {
+                    rightNode.bounds.adjust(allprimitives[primitiveIndex[l]].box);
+                }
+
+                node.right = rightNode;
+                
+                node.isleaf = false;
+
+                if (leftNode.count > 0) toProcess.Enqueue(leftNode);
+                if (rightNode.count > 0) toProcess.Enqueue(rightNode);
+            }            
+        }
+
+        private static void getBestSplitPlane(List<int> primitiveIndex, List<Primitive> allprimitives, BVHNode node, ref float bestCostFormation, ref int bestPrimitiveOfPlane)
+        {
+            for (int i = node.first; i < node.first + node.count; i++)
             {
                 //we get the x value of a splitplane
                 float splitX = allprimitives[primitiveIndex[(int)i]].position.X;
@@ -49,7 +108,7 @@ namespace Application
                 int rightCount = 0;
 
                 //we adjust the bounds of these boundingboxes according to whether or not a primitive is left or right of the splitplane
-                for (uint j = first; j < first + count; j++)
+                for (int j = node.first; j < node.first + node.count; j++)
                 {
                     Primitive currentPrimitive = allprimitives[primitiveIndex[(int)j]];
                     //primitves that are exactly on the plane are assigned to the left of the split plane
@@ -73,11 +132,15 @@ namespace Application
                     bestPrimitiveOfPlane = (int)i;
                 }
             }
+        }
 
-            //quicksort the index array with knowing our best plane and assign the according value to left and right and give them their primitives
-            //switch pivot to first position
-            int temp = primitiveIndex[bestPrimitiveOfPlane]; primitiveIndex[bestPrimitiveOfPlane] = primitiveIndex[(int)first]; primitiveIndex[(int)first] = temp;
-            int r = (int)first; int s = (int)(first + count) - 1;
+        private static int quickSortBVH(List<int> primitiveIndex, List<Primitive> allprimitives, BVHNode node, int bestPrimitiveOfPlane)
+        {
+            int temp = primitiveIndex[bestPrimitiveOfPlane];
+            primitiveIndex[bestPrimitiveOfPlane] = primitiveIndex[(int)node.first]; 
+            primitiveIndex[(int)node.first] = temp;
+            int r = (int)node.first; 
+            int s = (int)(node.first + node.count) - 1;
             float bestSplitX = allprimitives[primitiveIndex[r]].position.X;
 
             while (r < s)
@@ -94,53 +157,7 @@ namespace Application
                     s--;
                 }
             }
-
-            //subdivide both beginning with the left node
-            BVHNode leftNode = new BVHNode();
-            leftNode.isleaf = true;
-            leftNode.first = this.first;
-            leftNode.count = (uint) (r - this.first) + 1;
-
-            leftNode.bounds.minPoint = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
-            leftNode.bounds.maxPoint = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
-          
-            //we set the right bounds for our left node
-            for (int l = (int)leftNode.first; l < leftNode.count + leftNode.first; l++)
-            {
-                leftNode.bounds.adjust(allprimitives[primitiveIndex[l]].box);
-            }
-            nodePool.Add(leftNode);
-            this.left = (uint)nodePool.Count - 1;
-
-
-            //now the right node
-            BVHNode rightNode = new BVHNode();
-            rightNode.isleaf = true;
-            rightNode.first = (uint)r+1;
-            rightNode.count = (uint)((this.count + this.first) - rightNode.first);
-
-            rightNode.bounds.minPoint = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
-            rightNode.bounds.maxPoint = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
-
-            //we set the right bounds for our right node
-            for (int l = (int)rightNode.first; l < rightNode.count + rightNode.first; l++)
-            {
-                rightNode.bounds.adjust(allprimitives[primitiveIndex[l]].box);
-            }
-            nodePool.Add(rightNode);
-            this.right = (uint)nodePool.Count - 1;
-
-            //if we have children, this node is certainly not a leaf
-            this.isleaf = false;
-
-            //update the nodepool to contain the children location nodes
-            nodePool[ownNodeIndex] = this;
-
-            //subdivide our children
-            nodePool[(int)this.right].subdivide(nodePool, primitiveIndex, allprimitives, (int)this.right);
-            nodePool[(int)this.left].subdivide(nodePool, primitiveIndex, allprimitives, (int)this.left);
-
-            
+            return r;
         }
     }
 
@@ -176,7 +193,6 @@ namespace Application
             for (int i = 0; i < 3; i++)
             {
                 minPoint[i] = Math.Min(box.minPoint[i], minPoint[i]);
-
                 maxPoint[i] = Math.Max(box.maxPoint[i], maxPoint[i]);
             }
         }
