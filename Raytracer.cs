@@ -161,8 +161,8 @@ namespace Application
             {
                 Vector3 dir = point - light.location;
                 Vector3 pointNormal = primitive.getNormal(point);
-                //only if a light source is not behind the point that needs shading
-                if (Vector3.Dot(dir, pointNormal) < 0 && Vector3.Dot(dir, dir) < (WIDTH << 4))
+                //only if a light source is not behind the point that needs shading                        
+                if (Vector3.Dot(dir, pointNormal)< 0 && Vector3.Dot(dir, dir) < (WIDTH << 4))
                 {
                     //only if the distance of the light is not too far away                    
                     Vector3 normDir = dir.Normalized();
