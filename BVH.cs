@@ -17,7 +17,12 @@ namespace Application
         public uint first;
         public uint count;
 
-        public void subdivide(List<BVHNode> nodePool, List<int> primitiveIndex, List<Primitive> allprimitives)
+        public string toString()
+        {
+            return "left: " + left.ToString() + ", right: " + right.ToString() + ", count: " + count.ToString() + " en first: " + first.ToString();
+        }
+
+        public void subdivide(List<BVHNode> nodePool, List<int> primitiveIndex, List<Primitive> allprimitives, int ownNodeIndex)
         {
             //if a node has less than 3 primitives it is a leaf
             if (this.count < 3) return;
@@ -107,6 +112,7 @@ namespace Application
             nodePool.Add(leftNode);
             this.left = (uint)nodePool.Count - 1;
 
+
             //now the right node
             BVHNode rightNode = new BVHNode();
             rightNode.isleaf = true;
@@ -124,12 +130,17 @@ namespace Application
             nodePool.Add(rightNode);
             this.right = (uint)nodePool.Count - 1;
 
-            //subdivide our children
-            nodePool[(int)this.right].subdivide(nodePool, primitiveIndex, allprimitives);
-            nodePool[(int)this.left].subdivide(nodePool, primitiveIndex, allprimitives);
-
             //if we have children, this node is certainly not a leaf
             this.isleaf = false;
+
+            //update the nodepool to contain the children location nodes
+            nodePool[ownNodeIndex] = this;
+
+            //subdivide our children
+            nodePool[(int)this.right].subdivide(nodePool, primitiveIndex, allprimitives, (int)this.right);
+            nodePool[(int)this.left].subdivide(nodePool, primitiveIndex, allprimitives, (int)this.left);
+
+            
         }
     }
 

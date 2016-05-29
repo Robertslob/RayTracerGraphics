@@ -17,7 +17,7 @@ namespace Application
         public Scene scene;
 
         public static int WIDTH = 512 >> 1;
-        public static int MAXDEPTH = 10;
+        public static int MAXDEPTH = 5;
 
         int CreateColor(int red, int green, int blue)
         {

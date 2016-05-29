@@ -1,8 +1,10 @@
 ﻿using OpenTK;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Application
@@ -28,15 +30,48 @@ namespace Application
             //allPrimitives.Add(new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material(new Vector3(0.2f, 0.2f, 0.3f), 0f, 1f, 0.5f, true)));            
             allPrimitives.Add(new Sphere(new Vector3(0, 1, 0), 1, new Material(new Vector3(1, 0, 1), 1f, 1.3f, 0.0f, false)));         
             allPrimitives.Add(new Sphere(new Vector3(-2, 1, 0), 1, new Material(new Vector3(0.5f, 0, 0), 0.0f, 1, 1f, false)));
+            allPrimitives.Add(new Sphere(new Vector3(-5, 1, 0), 1, new Material(new Vector3(1, 0, 1), 1f, 1.3f, 0.0f, false)));
+            allPrimitives.Add(new Sphere(new Vector3(-10, 1, 0), 1, new Material(new Vector3(1, 0, 1), 1f, 1.3f, 0.0f, false)));
+            allPrimitives.Add(new Sphere(new Vector3(-15, 1, 0), 1, new Material(new Vector3(1, 0, 1), 1f, 1.3f, 0.0f, false)));         
+
             //allPrimitives.Add(new Sphere(new Vector3(2, 1, 0), 1, new Material(new Vector3(0, 0, 0.8f), 0.0f, 0.0f, true)));            
             allPrimitives.Add(new Sphere(new Vector3(2, 1, 0), 1, new Material("../../assets/2.jpg", 0.2f)));
 
+            //warning this takes like 5 min to load....!!!!!!
+            //buildAsset("../../assets/bunny.obj", new Vector3(-100, 1, 0));
             // Test-Triangle
             allPrimitives.Add(new Triangle(new Vector3(4, 1, 1), new Vector3(3, 2, 1), new Vector3(3.5f, 0, 0), new Material(new Vector3(0.0f, 0.5f, 0.2f), 0.1f, 0.3f, 0.05f, false)));
 
             floor = (new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material("../../assets/1.jpg", 0.0f)));            
             
             buildBVH();
+        }
+
+        //this function is copied from here:
+        //http://www.rexcardan.com/2014/10/read-obj-file-in-c-in-just-10-lines-of-code/
+        //all credits go to the guy who really wrote this...
+        public void buildAsset(string objectLocation, Vector3 objectPosition)
+        {
+
+            var lines = File.ReadAllLines("../../assets/bunny.obj");
+            //List of double[]. Each entry of the list contains 3D vertex x,y,z in double array form
+            var verts = lines.Where(l => Regex.IsMatch(l, @"^v(\s+-?\d+\.?\d+([eE][-+]?\d+)?){3,3}$"))
+                .Select(l => Regex.Split(l, @"\s+", RegexOptions.None).Skip(1).ToArray()) //Skip v
+                .Select(nums => new Vector3(float.Parse(nums[0]), float.Parse(nums[1]), float.Parse(nums[2])))
+                .ToList();
+
+            //List of int[]. Each entry of the list contains zero based index of vertex reference
+            //Obj format is 1 based index. This is converting into C# zero based, so on write out you need to convert back.
+            var faces = lines.Where(l => Regex.IsMatch(l, @"^f(\s\d+(\/+\d+)?){3,3}$"))
+                .Select(l => Regex.Split(l, @"\s+", RegexOptions.None).Skip(1).ToArray())//Skip f
+                .Select(i => i.Select(a => Regex.Match(a, @"\d+", RegexOptions.None).Value).ToArray())
+                .Select(nums => new int[] { int.Parse(nums[0]) - 1, int.Parse(nums[1]) - 1, int.Parse(nums[2]) - 1 })
+                .ToList();
+            Console.WriteLine(faces.Count.ToString());
+            foreach (int[] face in faces)
+            {
+                allPrimitives.Add(new Triangle(objectPosition + 200 * verts[face[0]], objectPosition + 200 * verts[face[1]], objectPosition + 200 * verts[face[2]], new Material(new Vector3(0.0f, 0.5f, 0.2f), 0, 0, 0, false)));
+            }
         }
 
         public void buildBVH()
@@ -57,10 +92,9 @@ namespace Application
             root.isleaf = true;
             root.first = 0;
             root.count = (uint)primitiveIndexes.Count();
-
+                        
             nodePool.Add(root);
-            //subdivide the root to create the whole tree structure.
-            root.subdivide(nodePool, primitiveIndexes, allPrimitives);
+            root.subdivide(nodePool, primitiveIndexes, allPrimitives, 0);
         }
 
         public Intersection intersectScene(Ray ray)
@@ -85,12 +119,14 @@ namespace Application
                     //if it is not a leaf we just enqueue its children so we can analyze them later on
                     if (!parentNode.isleaf)
                     {
+                        //Console.WriteLine("hey!");
                         searchQueue.Enqueue((int)parentNode.left);
                         searchQueue.Enqueue((int)parentNode.right);
                     }
                     //if it is a leaf we have to check every primitive that it owns
                     else
                     {
+                        
                         for (int n = (int)parentNode.first; n < parentNode.first + parentNode.count; n++)
                         {
                             currentDistance = allPrimitives[primitiveIndexes[n]].intersects(ray);
@@ -104,7 +140,7 @@ namespace Application
                     }
                 }
             }
-            
+
             //eventually we also check if we hit the floor
             currentDistance = floor.intersects(ray);
             if (closestDistance > currentDistance && currentDistance > 0)
