@@ -23,23 +23,25 @@ namespace Application
         public Scene()
         {
             //all the primitives that are present in our scene
-            allLights.Add(new Light(new Vector3(-5, 1, -5), new Vector3(150, 150, 150)));
-            allLights.Add(new Light(new Vector3(5, 10, 5), new Vector3(50, 50, 50)));
-            allLights.Add(new Light(new Vector3(5, 1, -5), new Vector3(50, 50, 50)));
+            allLights.Add(new Light(new Vector3(0, 1, -5), new Vector3(150, 150, 150)));
+            allLights.Add(new Light(new Vector3(10, 10, 5), new Vector3(50, 50, 50)));
+            allLights.Add(new Light(new Vector3(10, 1, -5), new Vector3(50, 50, 50)));
             //allPrimitives.Add(new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material(new Vector3(0.2f, 0.2f, 0.3f), 0f, 1f, 0.5f, true)));            
-            /*allPrimitives.Add(new Sphere(new Vector3(0, 1, 0), 1, new Material(new Vector3(1, 0, 1), 1f, 1.3f, 0.0f, false)));         
-            allPrimitives.Add(new Sphere(new Vector3(-2, 1, 0), 1, new Material(new Vector3(0.5f, 0, 0), 0.0f, 1, 1f, false)));
-            allPrimitives.Add(new Sphere(new Vector3(-5, 1, 0), 1, new Material(new Vector3(1, 0, 1), 1f, 1.3f, 0.0f, false)));
-            allPrimitives.Add(new Sphere(new Vector3(-10, 1, 0), 1, new Material(new Vector3(1, 0, 1), 1f, 1.3f, 0.0f, false)));
-            allPrimitives.Add(new Sphere(new Vector3(-15, 1, 0), 1, new Material(new Vector3(1, 0, 1), 1f, 1.3f, 0.0f, false)));         
+            //warning this takes like 5 min to load....!!!!!!
+            
 
-            //allPrimitives.Add(new Sphere(new Vector3(2, 1, 0), 1, new Material(new Vector3(0, 0, 0.8f), 0.0f, 0.0f, true)));            
-            allPrimitives.Add(new Sphere(new Vector3(2, 1, 0), 1, new Material("../../assets/2.jpg", 0.2f)));*/
+            /*allPrimitives.Add(new Sphere(new Vector3(9, 1, 0), 1, new Material(new Vector3(1, 0, 1), 1f, 1.3f, 0.0f, false)));         
+            allPrimitives.Add(new Sphere(new Vector3(6, 1, 0), 1, new Material(new Vector3(0.5f, 0, 0), 0.0f, 1, 1f, false)));
+            allPrimitives.Add(new Sphere(new Vector3(3, 1, 0), 1, new Material(new Vector3(1, 0, 1), 1f, 1.3f, 0.0f, false)));
+            allPrimitives.Add(new Sphere(new Vector3(0, 1, 0), 1, new Material(new Vector3(1, 0, 1), 1f, 1.3f, 0.0f, false)));
+            allPrimitives.Add(new Sphere(new Vector3(-5, 1, 0), 1, new Material(new Vector3(1, 0, 1), 1f, 1.3f, 0.0f, false)));                     
+            allPrimitives.Add(new Sphere(new Vector3(-2, 1, 0), 1, new Material("../../assets/2.jpg", 0.2f)));*/
 
             //warning this takes like 5 min to load....!!!!!!
-            buildAsset("../../assets/bunny.obj", new Vector3(0, 1, 0));
+            buildAsset("../../assets/pyramid.obj", new Vector3(-100, 1, 0));
+            //buildAsset("../../assets/bunny.obj", new Vector3(0, 1, 0));
             // Test-Triangle
-            allPrimitives.Add(new Triangle(new Vector3(4, 1, 1), new Vector3(3, 2, 1), new Vector3(3.5f, 0, 0), new Material(new Vector3(0.0f, 0.5f, 0.2f), 0.1f, 0.3f, 0.05f, false)));
+            allPrimitives.Add(new Triangle(new Vector3(8, 1, 1), new Vector3(7, 2, 1), new Vector3(7.5f, 0, 0), new Material(new Vector3(0.0f, 0.5f, 0.2f), 0.1f, 0.3f, 0.05f, false)));
 
             floor = (new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material("../../assets/1.jpg", 0.0f)));            
             
@@ -109,7 +111,7 @@ namespace Application
             //add the root in the searchqueue
             searchQueue.Push(root);
 
-            //very bad way to make this work... but it works.
+            // We set closestdistance to be very latge, and look for an object closer
             float closestDistance = 1000000;
             Primitive closestPrimitive = null;
             float currentDistance;
@@ -158,13 +160,11 @@ namespace Application
         }    
     }
 
-    //contains the result of an intersection
+    //contains our necessary result of an intersection
     class Intersection{
 
         public float intersectionDistance;
-        //I'm not sure this is what they mean in the assignment..
         public Primitive intersectedPrimitive;
-        //perhaps also the normal of the point of intersection should be stored here according to the assignment
 
         public Intersection(float distance, Primitive primitive)
         {

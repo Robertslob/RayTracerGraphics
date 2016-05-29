@@ -154,8 +154,38 @@ namespace Application
             }
         }
 
+        // Draw the 3 edges of the Triangle
         public override void debugOutput()
         {
+            GL.Begin(PrimitiveType.LineLoop);
+            GL.Color3(material.color);
+            float xVertex1 = (position2.X - position.X) / 300.0f;
+            float zVertex1 = (position2.Z - position.Z) / 300.0f;
+            for (int i = 0; i <= 300; i++)
+            {
+                float x = xVertex1 * i;
+                float z = zVertex1 * i;
+                GL.Vertex2(position.X + x, position.Z + z);
+            }
+            
+            float xVertex2 = (position3.X - position2.X) / 300.0f;
+            float zVertex2 = (position3.Z - position2.Z) / 300.0f;
+            for (int i = 0; i <= 300; i++)
+            {
+                float x = xVertex2 * i;
+                float z = zVertex2 * i;
+                GL.Vertex2(position2.X + x, position2.Z + z);
+            }
+            
+            float xVertex3 = (position.X - position3.X) / 300.0f;
+            float zVertex3 = (position.Z - position3.Z) / 300.0f;
+            for (int i = 0; i <= 300; i++)
+            {
+                float x = xVertex3 * i;
+                float z = zVertex3 * i;
+                GL.Vertex2(position3.X + x, position3.Z + z);
+            }
+            GL.End();
         }
 
         // Möller–Trumbore https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm

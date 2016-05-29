@@ -28,7 +28,7 @@ namespace Application
         {
             // hardcode the screen corners
             up = Vector3.UnitY;
-            left = Vector3.Cross(direction, up);
+            left = Vector3.Cross(direction, up); // Edit voor groter viewfield ( Meer graden)
             up = Vector3.Cross(left, direction);
 
             left.Normalize();

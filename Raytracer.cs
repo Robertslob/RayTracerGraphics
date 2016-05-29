@@ -28,13 +28,13 @@ namespace Application
         {
             Material.loadHdr("../../assets/stpeters_probe.float", 1500);
             scene = new Scene();
-            camera = new Camera(new Vector3(2.5f, 2.5f, 2.5f), new Vector3(-0.612f, -0.415f, -0.674f));
+            camera = new Camera(new Vector3(2.5f, 2.5f, 2.5f), new Vector3(-.612f, -.415f, -0.674f));
             camera.UpdatePlane();
             return camera;
         }
 
         // this guy is called once every frame and draws everything on the screen -- CORE OF THE RAYTRACER!
-        int a = 0;
+        //int a = 0;
         public void Render()
         {
             /*a++;
@@ -203,7 +203,7 @@ namespace Application
             GL.Disable(EnableCap.Texture2D);
 
             GL.MatrixMode(MatrixMode.Projection);
-            Matrix4 m = Matrix4.CreateScale(1 / 8.0f);
+            Matrix4 m = Matrix4.CreateScale(1 / 10.0f);
             GL.LoadMatrix(ref m);
 
 
