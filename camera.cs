@@ -15,6 +15,7 @@ namespace Application
         public Vector3 up, left;
         public float distancePlane = 1.5f;
         public int maxViewingDistance = 9000;
+        // We can maken the field of view smaller or larger with this factor
         public float viewDegree = 1.0f;             
 
         public Camera(Vector3 p, Vector3 direction)
