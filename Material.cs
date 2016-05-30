@@ -80,6 +80,23 @@ namespace Application
                 {
                     return getSphereColor(dest, primitive.position);
                 }
+                else if(primitive.GetType() == typeof(Triangle)) {
+                    var uv = ((Triangle)primitive).getUV(new Ray(dest + Vector3.UnitY, -Vector3.UnitY));
+                    float uc = uv.Item1;
+                    float vc = uv.Item2;
+                    int x = (int)(uc * surface.width) % surface.width;
+                    int y = (int)(vc * surface.height) % surface.height;
+                    x = (x < 0) ? surface.width + x : x;
+                    y = (y < 0) ? surface.height + y : y;
+
+                    int c = surface.pixels[x + y * surface.width];
+
+                    int r = (c >> 16) & 0xff;
+                    int g = (c >> 8) & 0xff;
+                    int b = (c) & 0xff;
+                    float div = 1 / 255.0f;
+                    return new Vector3(r * div, g * div, b * div);
+                }
                 else
                 {
                     Vector3 n = primitive.getNormal(dest);

@@ -1,4 +1,14 @@
 # RayTracerGraphics
+Ari Saadon: 5495741
+Robert Slob: 5496578 
+Zino Onomiw: 4221095
+
+Bonus:
+* Refraction with Fresnel
+* Skydome using HDR
+* Basic OBJ support (triangles)
+* Acceleration structure
+* Textures on all
 
 ##Deadline Tuesday, May 31, 2016, 23:59h
 

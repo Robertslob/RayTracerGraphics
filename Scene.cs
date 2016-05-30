@@ -71,10 +71,12 @@ namespace Application
             Console.WriteLine(faces.Count.ToString());
 
 
+            Material material = new Material("../../assets/1.jpg", 0.0f);
             foreach (int[] face in faces)
             {
                 //Console.WriteLine((objectPosition + 0.000001f * verts[face[0]]));
-                allPrimitives.Add(new Triangle(objectPosition + 0.000001f * verts[face[0]], objectPosition + 0.000001f * verts[face[1]], objectPosition + 0.000001f * verts[face[2]], new Material(new Vector3(0.3f, 0.5f, 0.2f), 0, 1.3f, 0.0f, false)));
+                //allPrimitives.Add(new Triangle(objectPosition + 0.000001f * verts[face[0]], objectPosition + 0.000001f * verts[face[1]], objectPosition + 0.000001f * verts[face[2]], new Material(new Vector3(0.3f, 0.5f, 0.2f), 0, 1.3f, 0.0f, false)));
+                allPrimitives.Add(new Triangle(objectPosition + 0.000001f * verts[face[0]], objectPosition + 0.000001f * verts[face[1]], objectPosition + 0.000001f * verts[face[2]], material));
             }
         }
 

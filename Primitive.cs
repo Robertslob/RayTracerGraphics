@@ -211,6 +211,24 @@ namespace Application
             return normal;
         }
 
+        public Tuple<float, float> getUV(Ray r)
+        {
+            Vector3 e1 = position2 - position;
+            Vector3 e2 = position3 - position;
+
+            Vector3 P = Vector3.Cross(r.Direction, e2);
+            float det = Vector3.Dot(e1, P);            
+            float invDet = 1.0f / det;
+
+            Vector3 T = r.Origin - position;
+            Vector3 Q = Vector3.Cross(T, e1);
+
+            float u = Vector3.Dot(T, P) * invDet;          
+            float v = Vector3.Dot(r.Direction, Q) * invDet;
+
+            return new Tuple<float, float>(u, v);
+        }
+
     }
 
     //whitted-style ray tracer only has point light (in its basic form)
