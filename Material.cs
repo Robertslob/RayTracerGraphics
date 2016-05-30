@@ -16,7 +16,6 @@ namespace Application
         public float refractionIndex;
         private bool hasPattern;
         private Surface surface;
-        private Surface normalMap;
         private static Vector3[] hdr = new Vector3[1];
 
         public Material(Vector3 color, float refraction, float refractionIndex, float reflection, bool pattern)
@@ -28,14 +27,15 @@ namespace Application
             this.refractionIndex = refractionIndex;
         }
 
-        public Material(String file, float reflection)
+        public Material(string file, float reflection)
         {
             this.reflection = reflection;
             this.hasPattern = true;
             surface = new Surface(file);
         }
 
-        public static void loadHdr(String file, int width)
+        // Loads the HDR
+        public static void loadHdr(string file, int width)
         {
             if (hdr.Length > 1) return;
             BinaryReader reader = new BinaryReader(new FileStream(file, FileMode.Open));
@@ -46,16 +46,12 @@ namespace Application
             }
             reader.Close();
         }
-
-
-
+        
         public static Vector3 getHemiSphereColor(Vector3 dest, Vector3 sphere)
         {
             Vector3 d = (dest - sphere).Normalized();
 
             float f = 1 / (float)Math.PI;
-            //float u = 0.5f + (float)Math.Atan2(d.Z, d.X) * 0.5f * f;
-            //float v = 0.5f + (float)Math.Asin(d.Y) * f;
 
             float length = d.Xy.Length;
             if (length == 0) length = 1;
@@ -69,6 +65,7 @@ namespace Application
             return hdr[x + y * 1500];
         }
 
+        // Returns the color of a pattern
         public Vector3 getpatternColor(Vector3 dest, Primitive primitive)
         {
             if (hasPattern && surface == null)
@@ -111,7 +108,7 @@ namespace Application
             }
         }
 
-
+        //Returns the color of the sphere, which is easy, unless it has a pattern
         public Vector3 getSphereColor(Vector3 dest, Vector3 sphere)
         {
             if (hasPattern)
@@ -132,7 +129,6 @@ namespace Application
 
                 float div = 1 / 255.0f;
                 return new Vector3(r * div, g * div, b * div);
-                //return getHemiSphereColor(dest, sphere);
             }
             else
             {

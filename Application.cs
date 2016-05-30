@@ -194,6 +194,14 @@ namespace Application
                 if (camera.distancePlane < 1)
                     camera.distancePlane = 1;
             }   
+            if(state[Key.KeypadPlus])
+            {
+                camera.viewDegree *= 1.25f;
+            }
+            if (state[Key.KeypadMinus])
+            {
+                camera.viewDegree /= 1.25f;
+            }
 
 
             //camera.direction.Normalize();

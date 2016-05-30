@@ -184,7 +184,7 @@ namespace Application
             Ray r = new Ray(light.location, normDir);
 
             //float DistancetoPoint = length*.99f;
-            float currentDistance;
+            //float currentDistance;
 
             /*
             foreach (Primitive primitive in scene.allPrimitives)
@@ -205,7 +205,7 @@ namespace Application
             GL.Disable(EnableCap.Texture2D);
 
             GL.MatrixMode(MatrixMode.Projection);
-            Matrix4 m = Matrix4.CreateScale(1 / 8.0f);
+            Matrix4 m = Matrix4.CreateScale(1 / 10.0f);
             GL.LoadMatrix(ref m);
 
 
@@ -248,6 +248,7 @@ namespace Application
             }
         }     
 
+        // The ray of the debug
         private void debugRay(Vector3 pos, Ray ray, int depth)
         {
             Intersection intersected = scene.intersectScene(ray);
@@ -286,6 +287,7 @@ namespace Application
             }
         }
 
+        // The shadow ray of the debug
         private void debugshadowRay(Vector3 pos)
         {
             GL.Color3(1.0f, 1.0f, 0.4f);
@@ -295,8 +297,7 @@ namespace Application
                 Vector3 normDir = dir.Normalized();
                 Ray r = new Ray(light.location, normDir);
                 bool isblocked = false;
-
-                //float DistancetoPoint = length*.99f;
+                                
                 float currentDistance;
 
                 foreach (Primitive primitive in scene.allPrimitives)

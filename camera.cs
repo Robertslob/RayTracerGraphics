@@ -11,11 +11,11 @@ namespace Application
     {
         public Vector3 position;
         public Vector3 direction;
-        // vector Direction?
         public Vector3 p1, p2, p3;
         public Vector3 up, left;
         public float distancePlane = 1.5f;
         public int maxViewingDistance = 9000;
+        public float viewDegree = 1.0f;             
 
         public Camera(Vector3 p, Vector3 direction)
         {
@@ -26,7 +26,6 @@ namespace Application
 
         public void UpdatePlane()
         {
-            // hardcode the screen corners
             up = Vector3.UnitY;
             left = Vector3.Cross(direction, up); // Edit voor groter viewfield ( Meer graden)
             up = Vector3.Cross(left, direction);
@@ -34,11 +33,11 @@ namespace Application
             left.Normalize();
             up.Normalize();
             //linksonder
-            p1 = position + (direction * distancePlane) + left - up;
+            p1 = position + (direction * distancePlane) + left * viewDegree - up;
             //linksboven
-            p2 = position + (direction * distancePlane) + left + up;
+            p2 = position + (direction * distancePlane) + left * viewDegree + up;
             //rechtsboven
-            p3 = position + (direction * distancePlane) - left + up;
+            p3 = position + (direction * distancePlane) - left * viewDegree + up;
         }
 
         //Get ray from camera to 'pixel' on viewplane.
@@ -51,12 +50,12 @@ namespace Application
         }
     }
     
-
+    // The ray Class
     public class Ray
     {
         public Vector3 Origin;
         public Vector3 Direction;
-        public int depth; //Voor weerkaatsing enzo.
+        public int depth;
         public float refractionIndex = 1.0f;
 
         public Ray(Vector3 position, Vector3 direction)

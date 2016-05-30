@@ -18,13 +18,13 @@ namespace Application
         {
             this.material = material;
             this.position = position;
-        }
-
-        
+        }        
 
         //Returns lengte van ray r;
         public abstract float intersects(Ray r);
+        //Returns normal
         public abstract Vector3 getNormal(Vector3 positionOnPrimitive);
+        //Causes the debugOutput
         public abstract void debugOutput();
     }
 
@@ -41,11 +41,7 @@ namespace Application
         }
 
         public override float intersects(Ray r)
-        {
-            /*bool canIntersect = this.canIntersect(r);
-            if (!canIntersect)
-                return int.MaxValue;            */
-
+        {         
             float b = 2*(Vector3.Dot(r.Direction, (r.Origin - position)));
             float c = Vector3.Dot((r.Origin - position),(r.Origin - position)) - radius * radius;
 
@@ -68,6 +64,8 @@ namespace Application
             }
         }
 
+        // An early out, not used anymore because it doesn't work with refraction
+        /*
         public bool canIntersect(Ray r)
         {
             Vector3 c = position - r.Origin;
@@ -77,7 +75,7 @@ namespace Application
             if (p2 > radius)
                 return false;
             return true;
-        }
+        }*/
 
         public override void debugOutput()
         {
@@ -143,7 +141,7 @@ namespace Application
         {
             position2 = pos2;
             position3 = pos3;
-            normal = Vector3.Cross((position - position3), (position2 - position3));
+            normal = Vector3.Cross((position2 - position), (position3 - position));
             normal.Normalize();
 
 
@@ -210,7 +208,7 @@ namespace Application
 
         public override Vector3 getNormal(Vector3 positionOnPrimitive)
         {            
-            return -normal;
+            return normal;
         }
 
     }
