@@ -32,15 +32,19 @@ namespace Application
             allPrimitives.Add(new Sphere(new Vector3(-5, 1, 0), 1, new Material(new Vector3(1, 0, 1), 0, 1.3f, 0.0f, false)));                     
             allPrimitives.Add(new Sphere(new Vector3(-2, 1, 0), 1, new Material("../../assets/2.jpg", 0.0f)));
 
-            //warning this takes like 5 min to load....!!!!!!
             Material material = new Material("../../assets/1.jpg", 0.2f);
             Material material2 =new Material(new Vector3(1.0f, 0.5f, 1.0f), 0, 0, 0.2f, false);
             
+            //we have implemented the possibility to construct .obj files by using triangles. Because the raytracer
+            //is not implemented on the gpu, the fps while having a lot of primitives can be extremely low
+            //also having a scene with a large amount of primitives can really take a long time to start due to the 
+            //raytracer building the bvh, which is neither on the gpu nor multithreaded.
             //Scale can be different on different PCs, why????
             //Locale...
             allPrimitives.AddRange(OBJParser.readOBJ("../../assets/stalin1.obj", new Vector3(0, 1.5f, 3), 0.01f, material2));
             //allPrimitives.AddRange(OBJParser.readOBJ("../../assets/bunny.obj", new Vector3(2, 0.5f, 0), 10f, material));
             //allPrimitives.AddRange(OBJParser.readOBJ("../../assets/dragon.obj", new Vector3(0, 1.5f, 3), 0.1f, material2));            
+
             //allPrimitives.AddRange(OBJParser.readOBJ("../../assets/mino.obj", new Vector3(0, 1.5f, 3), 0.001f, material2));
 
             floor = (new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material("../../assets/1.jpg", 0.0f)));
@@ -50,6 +54,7 @@ namespace Application
             Console.WriteLine("Build BVH");
         }
 
+        //builds the whole bvh
         public void buildBVH()
         {
             root = new BVHNode();
@@ -69,11 +74,12 @@ namespace Application
                 primitiveIndexes.Add(j);
             }
 
-            //just in case our whole scene consists of 3 primitives
+            //a node is always a leaf until proven innocent (russian-law-bvh)
             root.isleaf = true;
             root.first = 0;
             root.count = primitiveIndexes.Count();
             
+            //grow our root into a beautifull tree
             BVHNode.Divide(root, primitiveIndexes, allPrimitives, 0);
         }
 

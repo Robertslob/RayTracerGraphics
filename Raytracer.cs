@@ -16,6 +16,7 @@ namespace Application
         public Camera camera;
         public Scene scene;
 
+        //with this we can control the resolution of our screen
         public static int WIDTH = 512 << 0;
         public static int MAXDEPTH = 5;
 

@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 namespace Application 
 {
+    //node data structure, not optimized for datalocality. Contains two methods
+    //one for output purposes and another one that creates a bvh structure from the root
     public class BVHNode
     {
         public BVHNode left;
@@ -23,7 +25,6 @@ namespace Application
         }        
         public static void Divide(BVHNode root, List<int> primitiveIndex, List<Primitive> allprimitives, int ownNodeIndex)
         {
-            //if a node has less than 3 primitives it is a leaf            
             uint nodeCounter = 0;
             Queue<BVHNode> toProcess = new Queue<BVHNode>();
             toProcess.Enqueue(root);
@@ -31,6 +32,7 @@ namespace Application
             {
                 nodeCounter++;
                 BVHNode node = toProcess.Dequeue();
+                //if a node has less or equal than 8 nodes we continue with dividing the node
                 if (node.count <= 8)
                 {                    
                     continue;
@@ -38,8 +40,8 @@ namespace Application
                 float bestCostFormation = node.bounds.getSurface() * node.count;                
                 float pivot;
                 Vector3 axis;
-                //foreach splitplane that we can imagine with the primitives of this node
                 
+                //we calculate the best splitplane for each axis
                 Tuple<float, float> x = getBestSplitPlane(primitiveIndex, allprimitives, node, Vector3.UnitX);                
                 Tuple<float, float> y = getBestSplitPlane(primitiveIndex, allprimitives, node, Vector3.UnitY);                
                 Tuple<float, float> z = getBestSplitPlane(primitiveIndex, allprimitives, node, Vector3.UnitZ);
@@ -63,11 +65,9 @@ namespace Application
                     axis = Vector3.UnitZ;
                 }
                 
-                //r the split in the count,
                 
-                //quicksort the index array with knowing our best plane and assign the according value to left and right and give them their primitives
-                //switch pivot to first position
-                
+                //quicksort the index array with knowing our best plane and assign the according value to left and right and 
+                //switch pivot to first position give them their primitives                
                 int r = quickSortBVH(primitiveIndex, allprimitives, node, pivot, axis);
                 //Console.WriteLine((node.first) + "< " + (r) + "<" + (node.first + node.count) + "]] best cost: " + bestCostFormation + ", pivot: " + pivot);
                
@@ -81,7 +81,7 @@ namespace Application
                 leftNode.bounds.minPoint = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
                 leftNode.bounds.maxPoint = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
 
-                //we set the right bounds for our left node
+                //we set the according bounds for our left node
                 for (int l = leftNode.first; l < leftNode.count + leftNode.first; l++)
                 {
                     leftNode.bounds.adjust(allprimitives[primitiveIndex[l]].box);
@@ -97,16 +97,17 @@ namespace Application
                 rightNode.bounds.minPoint = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
                 rightNode.bounds.maxPoint = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
 
-                //we set the right bounds for our right node
+                //we set the according bounds for our right node
                 for (int l = (int)rightNode.first; l < rightNode.count + rightNode.first; l++)
                 {
                     rightNode.bounds.adjust(allprimitives[primitiveIndex[l]].box);
                 }
-                //rightNode.bounds = createAABB(rightNode.first, rightNode.first + rightNode.count, allprimitives, primitiveIndex);
                 node.right = rightNode;
                 
+                //the current node is obviously not a leaf if it has children
                 node.isleaf = false;
 
+                //if one of the children has less than 8 primitives then it should not have children
                 if (leftNode.count > 8) toProcess.Enqueue(leftNode);
                 if (rightNode.count > 8) toProcess.Enqueue(rightNode);
             }            
@@ -170,6 +171,7 @@ namespace Application
             return new Tuple<float,float>(bestCost, pivot);
         }
 
+        //standard quicksort implementation
         private static int quickSortBVH(List<int> primitiveIndex, List<Primitive> allprimitives, BVHNode node, float pivot, Vector3 axis)
         {         
             int low = node.first;
@@ -189,7 +191,7 @@ namespace Application
     }
 
 
-
+    //boundingbox structure
     public struct AABB
     {
         public Vector3 minPoint, maxPoint;
@@ -226,6 +228,7 @@ namespace Application
             }
         }
 
+        //get the surface of the aabb
         public float getSurface()
         {
             float length = maxPoint.X - minPoint.X;
