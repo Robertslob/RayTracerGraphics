@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using template;
 
 namespace Application
 {
@@ -32,12 +33,14 @@ namespace Application
             allPrimitives.Add(new Sphere(new Vector3(-2, 1, 0), 1, new Material("../../assets/2.jpg", 0.0f)));*/
 
             //warning this takes like 5 min to load....!!!!!!
-            buildAsset("../../assets/bunny.obj", new Vector3(0, 0, 0));
+            Material material = new Material(new Vector3(1.0f, 0.5f, 1.0f), 0, 0, 0, false);
+            allPrimitives.AddRange(OBJParser.readOBJ("../../assets/bunny.obj", new Vector3(0, 0, 0), 10.0f, material));
+            //buildAsset("../../assets/bunny.obj", new Vector3(0, 0, 0));
             // Test-Triangle
             //allPrimitives.Add(new Triangle(new Vector3(8, 1, 1), new Vector3(7, 1, 1), new Vector3(7.5f, 0, 0), new Material(new Vector3(0.5f, 0.5f, 0.2f), 0.1f, 0.3f, 0.5f, false)));
 
-            floor = (new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material("../../assets/1.jpg", 0.0f)));            
-            
+            floor = (new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material("../../assets/1.jpg", 0.0f)));
+            Console.WriteLine("Building BVH");
             buildBVH();
 
             
@@ -102,7 +105,8 @@ namespace Application
             //just in case our whole scene consists of 3 primitives
             root.isleaf = true;
             root.first = 0;
-            root.count = primitiveIndexes.Count();            
+            root.count = primitiveIndexes.Count();
+            
             BVHNode.subdivide(root, primitiveIndexes, allPrimitives, 0);
         }
 

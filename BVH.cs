@@ -36,33 +36,43 @@ namespace Application
                 if (node.count <= 8)
                 {                    
                     continue;
-                }
-
-                
-                float bestCostFormation = node.bounds.getSurface() * node.count;
-                float pivot = 0;                
+                }                
+                float bestCostFormation = node.bounds.getSurface() * node.count;                
+                float pivot;
+                Vector3 axis;
                 //foreach splitplane that we can imagine with the primitives of this node
                 
-                bool x = getBestSplitPlane(primitiveIndex, allprimitives, node, ref bestCostFormation, ref pivot, Vector3.UnitX);
-                bool y = getBestSplitPlane(primitiveIndex, allprimitives, node, ref bestCostFormation, ref pivot, Vector3.UnitY);
-                bool z = getBestSplitPlane(primitiveIndex, allprimitives, node, ref bestCostFormation, ref pivot, Vector3.UnitZ);
-                //Console.WriteLine(node.count);
+                Tuple<float, float> x = getBestSplitPlane(primitiveIndex, allprimitives, node, Vector3.UnitX);
+                Tuple<float, float> y = getBestSplitPlane(primitiveIndex, allprimitives, node, Vector3.UnitY);
+                Tuple<float, float> z = getBestSplitPlane(primitiveIndex, allprimitives, node, Vector3.UnitZ);
+
+                if (x.Item1 <= y.Item1 && x.Item1 <= z.Item1)
+                {
+                    bestCostFormation = x.Item1;
+                    pivot = x.Item2;
+                    axis = Vector3.UnitX;
+                }
+                else if (y.Item1 <= x.Item1 && y.Item1 <= z.Item1)
+                {
+                    bestCostFormation = y.Item1;
+                    pivot = y.Item2;
+                    axis = Vector3.UnitY;
+                }
+                else
+                {
+                    bestCostFormation = z.Item1;
+                    pivot = z.Item2;
+                    axis = Vector3.UnitZ;
+                }
+                
                 //r the split in the count,
-                int r;
+                
                 //quicksort the index array with knowing our best plane and assign the according value to left and right and give them their primitives
                 //switch pivot to first position
-                if (z)
-                {
-                    r = quickSortBVH(primitiveIndex, allprimitives, node, pivot, Vector3.UnitZ);
-                }
-                else if (y)
-                {
-                    r = quickSortBVH(primitiveIndex, allprimitives, node, pivot, Vector3.UnitY);
-                }
-                else 
-                {
-                    r = quickSortBVH(primitiveIndex, allprimitives, node, pivot, Vector3.UnitX);
-                }
+
+                int r = quickSortBVH(primitiveIndex, allprimitives, node, pivot, axis);
+               
+                Console.WriteLine((node.first) + "< " + (r) + "<" + (node.first + node.count) + "]] best cost: " + bestCostFormation + ", pivot: " + pivot);
                 
                 //int r = quickSortBVH(primitiveIndex, allprimitives, node, bestPrimitiveOfPlane);
 
@@ -107,12 +117,14 @@ namespace Application
         }
 
 
-        private static bool getBestSplitPlane(List<int> primitiveIndex, List<Primitive> allPrimitives, BVHNode node, ref float bestCost, ref float pivot, Vector3 axis)
+        private static Tuple<float, float> getBestSplitPlane(List<int> primitiveIndex, List<Primitive> allPrimitives, BVHNode node, Vector3 axis)
         {
-            bool better = false;           
+                    
 
             float minBound = float.PositiveInfinity;
             float maxBound = float.NegativeInfinity;
+            float bestCost = float.PositiveInfinity;
+            float pivot = 0;
             
             for (int i = node.first; i < node.first + node.count; i++)
             {
@@ -160,11 +172,10 @@ namespace Application
                 if (costCurrentFormation < bestCost)
                 {
                     bestCost = costCurrentFormation;
-                    pivot = split;
-                    better = true;
+                    pivot = split;                    
                 }
             }
-            return better;
+            return new Tuple<float,float>(bestCost, pivot);
         }
 
         private static int quickSortBVH(List<int> primitiveIndex, List<Primitive> allprimitives, BVHNode node, float pivot, Vector3 axis)

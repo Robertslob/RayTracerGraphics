@@ -129,12 +129,19 @@ namespace Application
         Vector3 position2, position3;
         Vector3 normal;
 
-        public Triangle(Vector3 pos1, Vector3 pos2, Vector3 pos3, Vector3 norm1, Vector3 norm2, Vector3 norm3, Material material)
+        public Triangle(Vector3 pos1, Vector3 pos2, Vector3 pos3, Vector3 norm, Material material)
             : base(material, pos1)
         {
             position2 = pos2;
             position3 = pos3;
-            normal = (norm1 + norm2 + norm3) * 0.333333f;
+            normal = norm;
+            if (normal.LengthSquared < 0.001f)
+            {
+                normal = Vector3.Cross((position2 - position), (position3 - position));
+                normal.Normalize();
+            }
+             normal.Normalize();
+            calculateBox();
         }
         public Triangle(Vector3 position, Vector3 pos2, Vector3 pos3, Material material)
             : base(material, position)
@@ -144,7 +151,12 @@ namespace Application
             normal = Vector3.Cross((position2 - position), (position3 - position));
             normal.Normalize();
 
+            calculateBox();
+        }
 
+
+        private void calculateBox()
+        {
             box.minPoint = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
             box.maxPoint = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
             //set minimum and maximum of the primitive each dimension at a time
