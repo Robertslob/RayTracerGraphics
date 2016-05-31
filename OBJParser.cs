@@ -31,7 +31,7 @@ namespace template
         //Set up culture for float
         private static void setUpCulture() {
             System.Globalization.CultureInfo customCulter = (System.Globalization.CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
-            customCulter.NumberFormat.NumberDecimalSeparator = ",";
+            customCulter.NumberFormat.NumberDecimalSeparator = ".";
             System.Threading.Thread.CurrentThread.CurrentCulture = customCulter;
 
         }
