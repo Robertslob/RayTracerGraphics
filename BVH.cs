@@ -71,11 +71,9 @@ namespace Application
                 //switch pivot to first position
 
                 int r = quickSortBVH(primitiveIndex, allprimitives, node, pivot, axis);
-               
                 Console.WriteLine((node.first) + "< " + (r) + "<" + (node.first + node.count) + "]] best cost: " + bestCostFormation + ", pivot: " + pivot);
+               
                 
-                //int r = quickSortBVH(primitiveIndex, allprimitives, node, bestPrimitiveOfPlane);
-
                 //subdivide both beginning with the left node
                 BVHNode leftNode = new BVHNode();
                 leftNode.isleaf = true;
@@ -86,7 +84,7 @@ namespace Application
                 leftNode.bounds.maxPoint = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
 
                 //we set the right bounds for our left node
-                for (int l = (int)leftNode.first; l < leftNode.count + leftNode.first; l++)
+                for (int l = leftNode.first; l < leftNode.count + leftNode.first; l++)
                 {
                     leftNode.bounds.adjust(allprimitives[primitiveIndex[l]].box);
                 }                

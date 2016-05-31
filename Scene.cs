@@ -33,8 +33,8 @@ namespace Application
             allPrimitives.Add(new Sphere(new Vector3(-2, 1, 0), 1, new Material("../../assets/2.jpg", 0.0f)));*/
 
             //warning this takes like 5 min to load....!!!!!!
-            Material material = new Material(new Vector3(1.0f, 0.5f, 1.0f), 0, 0, 0.5f, false);
-            allPrimitives.AddRange(OBJParser.readOBJ("../../assets/stalin2.obj", new Vector3(0, 1.5f, 0), 0.01f, material));
+            Material material = new Material(new Vector3(1.0f, 0.5f, 1.0f), 0, 0, 0f, false);
+            allPrimitives.AddRange(OBJParser.readOBJ("../../assets/freg.obj", new Vector3(0, 1.5f, 0), 0.005f, material));
 
             // Test-Triangle
             //allPrimitives.Add(new Triangle(new Vector3(8, 1, 1), new Vector3(7, 1, 1), new Vector3(7.5f, 0, 0), new Material(new Vector3(0.5f, 0.5f, 0.2f), 0.1f, 0.3f, 0.5f, false)));
