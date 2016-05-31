@@ -20,10 +20,8 @@ namespace Application
         public string toString()
         {
             return "left: " + left.ToString() + ", right: " + right.ToString() + ", count: " + count.ToString() + " en first: " + first.ToString();
-        }
-
-        //Assuming allPrimitives is ordered by their x location.
-        public static void subdivide(BVHNode root, List<int> primitiveIndex, List<Primitive> allprimitives, int ownNodeIndex)
+        }        
+        public static void Divide(BVHNode root, List<int> primitiveIndex, List<Primitive> allprimitives, int ownNodeIndex)
         {
             //if a node has less than 3 primitives it is a leaf            
             uint nodeCounter = 0;
@@ -113,8 +111,8 @@ namespace Application
                 if (rightNode.count > 0) toProcess.Enqueue(rightNode);
             }            
         }
-        //Calculate AABB in O(log (n))
 
+        //Calculate the best splitplane.
         private static Tuple<float, float> getBestSplitPlane(List<int> primitiveIndex, List<Primitive> allPrimitives, BVHNode node, Vector3 axis)
         {
             float minBound = float.PositiveInfinity;
@@ -129,7 +127,8 @@ namespace Application
                 if (pos > maxBound) maxBound = pos;                
             }            
             float increment = (maxBound - minBound) / 8.0f;
-            for (int i = 0; i < 8; i++)
+            //Using Binning
+            for (int i = 1; i < 7; i++)
             {               
                 float split = minBound + (float)i * increment;                
                 //we make two boundingboxes
