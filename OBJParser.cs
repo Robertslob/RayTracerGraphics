@@ -37,8 +37,8 @@ namespace template
         }
 
         private static Vector3[] getVectors(String[] lines)
-        {            
-            Vector3[] verts = lines.Where(l => Regex.IsMatch(l, @"^v(\s+-?\d+\.?\d+([eE][-+]?\d+)?){3,3}$"))
+        {
+            Vector3[] verts = lines.Where(l => Regex.IsMatch(l, @"^v(\s+-?\d+(\.?\d+([eE][-+]?\d+)?)?){3,3}$"))
                 .Select(l => Regex.Split(l, @"\s+", RegexOptions.None).Skip(1).ToArray()) //Skip v
                 .Select(nums => new Vector3(float.Parse(nums[0]), float.Parse(nums[1]), float.Parse(nums[2])))
                 .ToArray();
