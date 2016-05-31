@@ -17,6 +17,8 @@ namespace template
         //Not all, but many of, credits go to the guy who really wrote this...
         public static List<Triangle> readOBJ(String file, Vector3 pos, float scale, Material material)
         {
+            setUpCulture();
+
             String[] lines = File.ReadAllLines(file);
             List<Triangle> triangles = new List<Triangle>();
             Vector3[] vectors = getVectors(lines);
@@ -24,6 +26,14 @@ namespace template
             Vector3[] normalVectors = getNormalVectors(lines);
             Console.WriteLine("Loaded normals: " + normalVectors.Length);
             return getTriangles(pos, scale, material, lines, vectors, normalVectors);
+        }
+
+        //Set up culture for float
+        private static void setUpCulture() {
+            System.Globalization.CultureInfo customCulter = (System.Globalization.CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
+            customCulter.NumberFormat.NumberDecimalSeparator = ".";
+            System.Threading.Thread.CurrentThread.CurrentCulture = customCulter;
+
         }
 
         private static Vector3[] getVectors(String[] lines)
