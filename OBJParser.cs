@@ -2,6 +2,7 @@
 using OpenTK;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -40,7 +41,7 @@ namespace template
         {
             Vector3[] verts = lines.Where(l => Regex.IsMatch(l, @"^v(\s+-?\d+(\.?\d+([eE][-+]?\d+)?)?){3,3}$"))
                 .Select(l => Regex.Split(l, @"\s+", RegexOptions.None).Skip(1).ToArray()) //Skip v
-                .Select(nums => new Vector3(float.Parse(nums[0]), float.Parse(nums[1]), float.Parse(nums[2])))
+                .Select(nums => new Vector3(float.Parse(nums[0], CultureInfo.InvariantCulture), float.Parse(nums[1], CultureInfo.InvariantCulture), float.Parse(nums[2], CultureInfo.InvariantCulture)))
                 .ToArray();
             return verts;
         }
@@ -48,8 +49,8 @@ namespace template
         {
             Vector3[] verts = lines.Where(l => Regex.IsMatch(l, @"^vn(\s+-?\d+\.?\d+([eE][-+]?\d+)?){3,3}$"))
                 .Select(l => Regex.Split(l, @"\s+", RegexOptions.None).Skip(1).ToArray()) //Skip v
-                .Select(nums => new Vector3(float.Parse(nums[0]), float.Parse(nums[1]), float.Parse(nums[2])))
-                .ToArray();
+                .Select(nums => new Vector3(float.Parse(nums[0], CultureInfo.InvariantCulture), float.Parse(nums[1], CultureInfo.InvariantCulture), float.Parse(nums[2], CultureInfo.InvariantCulture)))
+                .ToArray();            
             return verts;
         }
         private static List<Triangle> getTriangles(Vector3 position, float scale, Material material, String[] lines, Vector3[] vectors, Vector3[] normals)

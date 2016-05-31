@@ -40,7 +40,7 @@ namespace Application
             //also having a scene with a large amount of primitives can really take a long time to start due to the 
             //raytracer building the bvh, which is neither on the gpu nor multithreaded.
             //Scale can be different on different PCs, why????
-            //allPrimitives.AddRange(OBJParser.readOBJ("../../assets/stalin1.obj", new Vector3(0, 1.5f, 3), 0.00000001f, material2));
+            allPrimitives.AddRange(OBJParser.readOBJ("../../assets/stalin1.obj", new Vector3(0, 1.5f, 3), 0.00000001f, material2));
             //allPrimitives.AddRange(OBJParser.readOBJ("../../assets/bunny.obj", new Vector3(2, 0.5f, 0), 0.000001f, material));
             //allPrimitives.AddRange(OBJParser.readOBJ("../../assets/dragon.obj", new Vector3(0, 1.5f, 3), 0.00005f, material2));
             //allPrimitives.AddRange(OBJParser.readOBJ("../../assets/mino.obj", new Vector3(0, 1.5f, 3), 0.001f, material2));
