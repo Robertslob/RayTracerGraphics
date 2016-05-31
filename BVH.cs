@@ -69,7 +69,7 @@ namespace Application
                 //switch pivot to first position
                 
                 int r = quickSortBVH(primitiveIndex, allprimitives, node, pivot, axis);
-                Console.WriteLine((node.first) + "< " + (r) + "<" + (node.first + node.count) + "]] best cost: " + bestCostFormation + ", pivot: " + pivot);
+                //Console.WriteLine((node.first) + "< " + (r) + "<" + (node.first + node.count) + "]] best cost: " + bestCostFormation + ", pivot: " + pivot);
                
                 
                 //subdivide both beginning with the left node
