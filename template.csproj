@@ -68,6 +68,7 @@
   <ItemGroup>
     <Compile Include="camera.cs" />
     <Compile Include="BVH.cs" />
+    <Compile Include="OBJParser.cs" />
     <Compile Include="Raytracer.cs" />
     <Compile Include="Material.cs" />
     <Compile Include="Primitive.cs" />
