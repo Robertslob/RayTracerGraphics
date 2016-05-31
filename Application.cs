@@ -121,7 +121,7 @@ namespace Application
             
             GL.PopAttrib();//Reset to the old viewport.
             GL.Enable(EnableCap.Texture2D);
-            //GL.Viewport(0, 0, , 512);
+
             //tell openTK we are gonna work on or next frame
             SwapBuffers();
 
