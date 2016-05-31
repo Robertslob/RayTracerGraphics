@@ -107,8 +107,8 @@ namespace Application
                 
                 node.isleaf = false;
 
-                if (leftNode.count > 0) toProcess.Enqueue(leftNode);
-                if (rightNode.count > 0) toProcess.Enqueue(rightNode);
+                if (leftNode.count > 8) toProcess.Enqueue(leftNode);
+                if (rightNode.count > 8) toProcess.Enqueue(rightNode);
             }            
         }
 
