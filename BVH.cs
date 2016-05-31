@@ -42,10 +42,10 @@ namespace Application
                 Vector3 axis;
                 //foreach splitplane that we can imagine with the primitives of this node
                 
-                Tuple<float, float> x = getBestSplitPlane(primitiveIndex, allprimitives, node, Vector3.UnitX);
-                Tuple<float, float> y = getBestSplitPlane(primitiveIndex, allprimitives, node, Vector3.UnitY);
+                Tuple<float, float> x = getBestSplitPlane(primitiveIndex, allprimitives, node, Vector3.UnitX);                
+                Tuple<float, float> y = getBestSplitPlane(primitiveIndex, allprimitives, node, Vector3.UnitY);                
                 Tuple<float, float> z = getBestSplitPlane(primitiveIndex, allprimitives, node, Vector3.UnitZ);
-
+                
                 if (x.Item1 <= y.Item1 && x.Item1 <= z.Item1)
                 {
                     bestCostFormation = x.Item1;
@@ -69,7 +69,7 @@ namespace Application
                 
                 //quicksort the index array with knowing our best plane and assign the according value to left and right and give them their primitives
                 //switch pivot to first position
-
+                
                 int r = quickSortBVH(primitiveIndex, allprimitives, node, pivot, axis);
                 Console.WriteLine((node.first) + "< " + (r) + "<" + (node.first + node.count) + "]] best cost: " + bestCostFormation + ", pivot: " + pivot);
                
@@ -79,7 +79,7 @@ namespace Application
                 leftNode.isleaf = true;
                 leftNode.first = node.first;
                 leftNode.count = (r - node.first) + 1;
-
+                
                 leftNode.bounds.minPoint = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
                 leftNode.bounds.maxPoint = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
 
@@ -87,7 +87,7 @@ namespace Application
                 for (int l = leftNode.first; l < leftNode.count + leftNode.first; l++)
                 {
                     leftNode.bounds.adjust(allprimitives[primitiveIndex[l]].box);
-                }                
+                }
                 node.left = leftNode;                
 
                 //now the right node
@@ -95,7 +95,7 @@ namespace Application
                 rightNode.isleaf = true;
                 rightNode.first = r + 1;
                 rightNode.count = (node.count + node.first) - rightNode.first;
-
+                
                 rightNode.bounds.minPoint = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
                 rightNode.bounds.maxPoint = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
 
@@ -104,7 +104,7 @@ namespace Application
                 {
                     rightNode.bounds.adjust(allprimitives[primitiveIndex[l]].box);
                 }
-
+                //rightNode.bounds = createAABB(rightNode.first, rightNode.first + rightNode.count, allprimitives, primitiveIndex);
                 node.right = rightNode;
                 
                 node.isleaf = false;
@@ -113,12 +113,10 @@ namespace Application
                 if (rightNode.count > 0) toProcess.Enqueue(rightNode);
             }            
         }
-
+        //Calculate AABB in O(log (n))
 
         private static Tuple<float, float> getBestSplitPlane(List<int> primitiveIndex, List<Primitive> allPrimitives, BVHNode node, Vector3 axis)
         {
-                    
-
             float minBound = float.PositiveInfinity;
             float maxBound = float.NegativeInfinity;
             float bestCost = float.PositiveInfinity;
@@ -129,14 +127,11 @@ namespace Application
                 float pos = Vector3.Dot(axis, allPrimitives[primitiveIndex[i]].position);                
                 if (pos < minBound) minBound = pos;
                 if (pos > maxBound) maxBound = pos;                
-            }
-            float increment = 1;
-            if (maxBound - minBound > 0)
-                increment = (maxBound - minBound) / 8;
-
-            //Console.Write("inc:" + increment + ", min:" + minBound + ", max: " + maxBound);
-            for (float split = minBound; split < maxBound; split += increment)
-            {
+            }            
+            float increment = (maxBound - minBound) / 8.0f;
+            for (int i = 0; i < 8; i++)
+            {               
+                float split = minBound + (float)i * increment;                
                 //we make two boundingboxes
                 AABB left;
                 AABB right;
@@ -166,8 +161,8 @@ namespace Application
                 }
 
                 float costCurrentFormation = leftCount * left.getSurface() + rightCount * right.getSurface();
-
-                if (costCurrentFormation < bestCost)
+                //Console.WriteLine(split + " split, " + costCurrentFormation);
+                if (costCurrentFormation <= bestCost)
                 {
                     bestCost = costCurrentFormation;
                     pivot = split;                    
@@ -218,7 +213,7 @@ namespace Application
             float tmax = Math.Min(  Math.Min( Math.Max(minX, maxX), Math.Max(minY, maxY)), Math.Max(minZ, maxZ) );
 
             if (tmax >= tmin) return tmin;
-            return -1;
+            return 0;
             
         }
 
@@ -238,6 +233,15 @@ namespace Application
             float height = maxPoint.Y - minPoint.Y;
             float width = maxPoint.Z - minPoint.Z;
             return 2.0f * ((length * height) + (width * length) + (width * height));
+        }
+
+        internal bool inAABB(Vector3 vector)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                if (vector[i] < minPoint[i] || vector[i] > maxPoint[i]) return false;
+            }
+            return true;
         }
     }
 
