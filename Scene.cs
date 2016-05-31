@@ -43,6 +43,7 @@ namespace Application
             //allPrimitives.AddRange(OBJParser.readOBJ("../../assets/stalin1.obj", new Vector3(0, 1.5f, 3), 0.00000001f, material2));
             //allPrimitives.AddRange(OBJParser.readOBJ("../../assets/bunny.obj", new Vector3(2, 0.5f, 0), 0.000001f, material));
             //allPrimitives.AddRange(OBJParser.readOBJ("../../assets/dragon.obj", new Vector3(0, 1.5f, 3), 0.00005f, material2));
+            //allPrimitives.AddRange(OBJParser.readOBJ("../../assets/mino.obj", new Vector3(0, 1.5f, 3), 0.001f, material2));
 
             floor = (new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material("../../assets/1.jpg", 0.0f)));
             
