@@ -16,7 +16,7 @@ namespace Application
         public Camera camera;
         public Scene scene;
 
-        public static int WIDTH = 512 >> 0;
+        public static int WIDTH = 512 << 0;
         public static int MAXDEPTH = 5;
 
         int CreateColor(int red, int green, int blue)
@@ -63,16 +63,16 @@ namespace Application
         private Vector3 PrimaryRay(Ray r, int depth)
         {
             Intersection intersected = scene.intersectScene(r);
-            Vector3 color = Material.getHemiSphereColor(r.Origin + r.Direction * intersected.intersectionDistance, Vector3.Zero);
+            Vector3 color = Material.getHemiSphereColor(r.Origin + r.Direction * intersected.distance, Vector3.Zero);
             //Vector3 color = new Vector3(0.4f, 0.3f, 0.7f);
             if (depth == 0) return Vector3.Zero;
-            Primitive primitive = intersected.intersectedPrimitive;
+            Primitive primitive = intersected.primitive;
             if (primitive != null)
             {
                 Material material = primitive.material;
 
                 //with the dest we can calulate the luminicity (hoe je dat ook schrijft) of a pixel by shadowraying
-                Vector3 dest = r.Origin + r.Direction * intersected.intersectionDistance;
+                Vector3 dest = r.Origin + r.Direction * intersected.distance;
 
                 Vector3 illumination = calculateillumination(dest, primitive);
                 color = material.getpatternColor(dest, primitive) * illumination;
@@ -162,7 +162,7 @@ namespace Application
                 Vector3 dir = point - light.location;
                 Vector3 pointNormal = primitive.getNormal(point);
                 //only if a light source is not behind the point that needs shading                        
-                if (Vector3.Dot(dir, pointNormal)< 0 && Vector3.Dot(dir, dir) < (WIDTH << 4))
+                if (Vector3.Dot(dir, pointNormal) < 0 && Vector3.Dot(dir, dir) < (WIDTH << 4))
                 {
                     //only if the distance of the light is not too far away                    
                     Vector3 normDir = dir.Normalized();
@@ -180,21 +180,9 @@ namespace Application
         // Return true als er iets tussen de lichtbron en het punt zit, false anders
         public bool shadowRay(Vector3 point, Light light, Vector3 normDir, float length)
         {
-
             Ray r = new Ray(light.location, normDir);
-
-            //float DistancetoPoint = length*.99f;
-            //float currentDistance;
-
-            /*
-            foreach (Primitive primitive in scene.allPrimitives)
-            {
-                currentDistance = primitive.intersects(r);
-                if (currentDistance * currentDistance < length * 0.999f && currentDistance > 0)
-                    return true;
-            }*/
-            return (scene.intersectScene(r).intersectedPrimitive == null) ;
-            //return false;            
+            Intersection inter = scene.intersectScene(r);
+            return inter.primitive != null && inter.distance * inter.distance < length * 0.99f;            
         }
 
         public void debugOutput()
@@ -253,32 +241,32 @@ namespace Application
         {
             Intersection intersected = scene.intersectScene(ray);
 
-            Vector3 dest = (pos + ray.Direction * intersected.intersectionDistance);
+            Vector3 dest = (pos + ray.Direction * intersected.distance);
             GL.Color3(0.4f, 1.0f, 0.4f);
 
             GL.Vertex2(pos.Xz);
             GL.Vertex2(dest.Xz);
-            if (intersected.intersectedPrimitive != null && depth > 0)
-            {
+            if (intersected.primitive != null && depth > 0)
+            {                
                 debugshadowRay(dest);
-                if (intersected.intersectedPrimitive.material.reflection > 0)
+                if (intersected.primitive.material.reflection > 0)
                 {
-                    Vector3 m = ray.mirror(intersected.intersectedPrimitive.getNormal(dest));
+                    Vector3 m = ray.mirror(intersected.primitive.getNormal(dest));
                     Ray nray = new Ray(dest + m * 0.05f, m);
                     nray.refractionIndex = ray.refractionIndex;
                     debugRay(dest, nray, depth - 1);
                 }
-                Material material = intersected.intersectedPrimitive.material;
+                Material material = intersected.primitive.material;
                 if (material.refraction > 0 && depth > 0)
                 {
-                    Ray nray = refract(intersected.intersectedPrimitive, ray, dest);
+                    Ray nray = refract(intersected.primitive, ray, dest);
                     if (nray != null)
                     {
                         debugRay(dest, nray, depth - 1);
                     }
                     else
                     {
-                        Vector3 m = ray.mirror(intersected.intersectedPrimitive.getNormal(dest));
+                        Vector3 m = ray.mirror(intersected.primitive.getNormal(dest));
                         nray = new Ray(dest + m * 0.05f, m);
                         debugRay(dest, nray, depth - 1);
                     }

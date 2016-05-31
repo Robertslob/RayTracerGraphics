@@ -184,8 +184,8 @@ namespace Application
             Vector3 P = Vector3.Cross(r.Direction, e2);
             float det = Vector3.Dot(e1, P);
 
-            if (det > -EPSILON && det < EPSILON)
-                return 0.0f;
+            //if (det > -EPSILON && det < EPSILON)
+               // return 0.0f;
             float invDet = 1.0f / det;
 
             Vector3 T = r.Origin - position;

@@ -26,25 +26,21 @@ namespace Application
             allLights.Add(new Light(new Vector3(0, 1, -5), new Vector3(150, 150, 150)));
             allLights.Add(new Light(new Vector3(10, 10, 5), new Vector3(50, 50, 50)));
             allLights.Add(new Light(new Vector3(10, 1, -5), new Vector3(50, 50, 50)));            
-            //allPrimitives.Add(new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material(new Vector3(0.2f, 0.2f, 0.3f), 0f, 1f, 0.5f, true)));            
-            //warning this takes like 5 min to load....!!!!!!
-            
-
-            allPrimitives.Add(new Sphere(new Vector3(9, 1, 0), 1, new Material(new Vector3(1, 0, 1), 1f, 1.3f, 0.0f, false)));         
-            allPrimitives.Add(new Sphere(new Vector3(6, 1, 0), 1, new Material(new Vector3(0.5f, 0, 0), 0.0f, 1, 1f, false)));
-            allPrimitives.Add(new Sphere(new Vector3(3, 1, 0), 1, new Material(new Vector3(1, 0, 1), 1f, 1.3f, 0.0f, false)));
-            allPrimitives.Add(new Sphere(new Vector3(0, 1, 0), 1, new Material(new Vector3(1, 0, 1), 1f, 1.3f, 0.0f, false)));
-            allPrimitives.Add(new Sphere(new Vector3(-5, 1, 0), 1, new Material(new Vector3(1, 0, 1), 1f, 1.3f, 0.0f, false)));                     
-            allPrimitives.Add(new Sphere(new Vector3(-2, 1, 0), 1, new Material("../../assets/2.jpg", 0.2f)));
+           /* allPrimitives.Add(new Sphere(new Vector3(3, 1, 0), 1, new Material(new Vector3(1, 0, 1), 0f, 1.3f, 0.0f, false)));
+            allPrimitives.Add(new Sphere(new Vector3(0, 1, -1), 1, new Material(new Vector3(1, 0, 1), 0, 1.3f, 0.0f, false)));
+            allPrimitives.Add(new Sphere(new Vector3(-5, 1, 0), 1, new Material(new Vector3(1, 0, 1), 0, 1.3f, 0.0f, false)));                     
+            allPrimitives.Add(new Sphere(new Vector3(-2, 1, 0), 1, new Material("../../assets/2.jpg", 0.0f)));*/
 
             //warning this takes like 5 min to load....!!!!!!
-            //buildAsset("../../assets/bunny.obj", new Vector3(2, 0, 2));
+            buildAsset("../../assets/bunny.obj", new Vector3(0, 0, 0));
             // Test-Triangle
             //allPrimitives.Add(new Triangle(new Vector3(8, 1, 1), new Vector3(7, 1, 1), new Vector3(7.5f, 0, 0), new Material(new Vector3(0.5f, 0.5f, 0.2f), 0.1f, 0.3f, 0.5f, false)));
 
             floor = (new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material("../../assets/1.jpg", 0.0f)));            
             
             buildBVH();
+
+            
             Console.WriteLine("build BVH");
         }
 
@@ -68,16 +64,20 @@ namespace Application
                 .Select(i => i.Select(a => Regex.Match(a, @"\d+", RegexOptions.None).Value).ToArray())
                 .Select(nums => new int[] { int.Parse(nums[0]) - 1, int.Parse(nums[1]) - 1, int.Parse(nums[2]) - 1 })
                 .ToList();
-            Console.WriteLine(faces.Count.ToString());
+            
 
 
-            Material material = new Material("../../assets/1.jpg", 0.0f);
+            Material material;// = new Material("../../assets/1.jpg", 0.0f);
+            material = new Material(new Vector3(1.0f, 0.5f, 1.0f), 0, 0, 0, false);
             foreach (int[] face in faces)
             {
-                //Console.WriteLine((objectPosition + 0.000001f * verts[face[0]]));
-                //allPrimitives.Add(new Triangle(objectPosition + 0.000001f * verts[face[0]], objectPosition + 0.000001f * verts[face[1]], objectPosition + 0.000001f * verts[face[2]], new Material(new Vector3(0.3f, 0.5f, 0.2f), 0, 1.3f, 0.0f, false)));
-                allPrimitives.Add(new Triangle(objectPosition + 0.000001f * verts[face[0]], objectPosition + 0.000001f * verts[face[1]], objectPosition + 0.000001f * verts[face[2]], material));
+                float scale = 10f;
+                //Console.WriteLine((objectPosition + scale * verts[face[0]]));                
+                allPrimitives.Add(new Triangle(objectPosition + scale * verts[face[0]], objectPosition + scale * verts[face[1]], objectPosition + scale* verts[face[2]], material));
+                
             }
+
+            Console.WriteLine("loaded: " + objectLocation + ", faces: " + faces.Count + ", scene objects: " + allPrimitives.Count);
         }
 
         public void buildBVH()
@@ -178,13 +178,13 @@ namespace Application
     //contains our necessary result of an intersection
     class Intersection{
 
-        public float intersectionDistance;
-        public Primitive intersectedPrimitive;
+        public float distance;
+        public Primitive primitive;
 
         public Intersection(float distance, Primitive primitive)
         {
-            this.intersectionDistance = distance;
-            this.intersectedPrimitive = primitive;
+            this.distance = distance;
+            this.primitive = primitive;
         }
         
     }
