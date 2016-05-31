@@ -18,7 +18,7 @@ namespace template
         //Not all, but many of, credits go to the guy who really wrote this...
         public static List<Triangle> readOBJ(String file, Vector3 pos, float scale, Material material)
         {
-            setUpCulture();
+            //setUpCulture();
 
             String[] lines = File.ReadAllLines(file);
             List<Triangle> triangles = new List<Triangle>();
