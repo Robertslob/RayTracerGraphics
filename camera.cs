@@ -28,7 +28,7 @@ namespace Application
         public void UpdatePlane()
         {
             up = Vector3.UnitY;
-            left = Vector3.Cross(direction, up); // Edit voor groter viewfield ( Meer graden)
+            left = Vector3.Cross(direction, up);
             up = Vector3.Cross(left, direction);
 
             left.Normalize();
@@ -46,7 +46,7 @@ namespace Application
         public Ray getRay(int x, int y) 
         {
             
-            Vector3 pos = p2 + (x * div) * (p3 - p2) + (y * div) * (p1 - p2); //Kan niet zo he, die hoofdletters, waar staat het voor? pos normaal?
+            Vector3 pos = p2 + (x * div) * (p3 - p2) + (y * div) * (p1 - p2);
             return new Ray(position, (pos - position).Normalized());  
         }
     }

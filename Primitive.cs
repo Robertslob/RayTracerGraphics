@@ -208,7 +208,7 @@ namespace Application
 
         public override Vector3 getNormal(Vector3 positionOnPrimitive)
         {            
-            return normal;
+            return -normal;
         }
 
         public Tuple<float, float> getUV(Ray r)

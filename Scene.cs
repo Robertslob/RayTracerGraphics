@@ -37,10 +37,10 @@ namespace Application
             allPrimitives.Add(new Sphere(new Vector3(-5, 1, 0), 1, new Material(new Vector3(1, 0, 1), 1f, 1.3f, 0.0f, false)));                     
             allPrimitives.Add(new Sphere(new Vector3(-2, 1, 0), 1, new Material("../../assets/2.jpg", 0.2f)));
 
-            //warning this takes like 5 min to load....!!!!!!
+            //warning this takes like 0.5 min to load....!!!!!!
             //buildAsset("../../assets/bunny.obj", new Vector3(2, 0, 2));
             // Test-Triangle
-            //allPrimitives.Add(new Triangle(new Vector3(8, 1, 1), new Vector3(7, 1, 1), new Vector3(7.5f, 0, 0), new Material(new Vector3(0.5f, 0.5f, 0.2f), 0.1f, 0.3f, 0.5f, false)));
+            allPrimitives.Add(new Triangle(new Vector3(8, 1, 1), new Vector3(7, 1, 1), new Vector3(7.5f, 0, 0), new Material(new Vector3(0.1f, .9f, 0.1f), 0.5f, 1.2f, 0.0f, false)));
 
             floor = (new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material("../../assets/1.jpg", 0.0f)));            
             
