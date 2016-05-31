@@ -52,13 +52,16 @@ namespace template
             int maxleng = 0;
             foreach (String[] line in faces)
             {                
+
                 var tupl = parseVector(line[0], vectors, normals);
                 Vector3 baseVector = tupl.Item1;
                 Vector3 baseNormal = tupl.Item2;
                 var tupl1 = parseVector(line[1], vectors, normals);
                 Vector3 lastVector = tupl1.Item1;
                 Vector3 lastNormal = tupl1.Item2;
-                if (line.Length > maxleng) maxleng = line.Length;
+                //if (line.Length > maxleng) maxleng = line.Length;
+
+                //Console.WriteLine(position + scale * baseVector);
                 for (int i = 2; i < line.Length; i++)
                 {
                     var tupl2 = parseVector(line[i], vectors, normals);

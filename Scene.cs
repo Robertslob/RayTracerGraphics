@@ -28,17 +28,18 @@ namespace Application
             allLights.Add(new Light(new Vector3(10, 10, 5), new Vector3(50, 50, 50)));
             allLights.Add(new Light(new Vector3(10, 1, -5), new Vector3(50, 50, 50)));            
             allPrimitives.Add(new Sphere(new Vector3(3, 1, 0), 1, new Material(new Vector3(1, 0, 1), 0f, 1.3f, 0.5f, false)));
-            allPrimitives.Add(new Sphere(new Vector3(0, 1, -1), 1, new Material(new Vector3(1, 0, 1), 1.0f, 1.3f, 0.0f, false)));
+            allPrimitives.Add(new Sphere(new Vector3(0, 1, -1), 1, new Material(new Vector3(1, 0, 1), 1.0f, 1.3f, 0.01f, false)));
             allPrimitives.Add(new Sphere(new Vector3(-5, 1, 0), 1, new Material(new Vector3(1, 0, 1), 0, 1.3f, 0.0f, false)));                     
-            allPrimitives.Add(new Sphere(new Vector3(-2, 1, 0), 1, new Material("../../assets/2.jpg", 0.0f)));           
+            allPrimitives.Add(new Sphere(new Vector3(-2, 1, 0), 1, new Material("../../assets/2.jpg", 0.0f)));
 
             //warning this takes like 5 min to load....!!!!!!
             Material material = new Material("../../assets/1.jpg", 0.2f);
-            Material material2 =new Material(new Vector3(1.0f, 0.5f, 1.0f), 0, 0, 0.8f, false);
+            Material material2 =new Material(new Vector3(1.0f, 0.5f, 1.0f), 0, 0, 0.2f, false);
             
             //Scale can be different on different PCs, why????
             allPrimitives.AddRange(OBJParser.readOBJ("../../assets/stalin1.obj", new Vector3(0, 1.5f, 3), 0.00000001f, material2));
             allPrimitives.AddRange(OBJParser.readOBJ("../../assets/bunny.obj", new Vector3(2, 0.5f, 0), 0.000001f, material));
+            //allPrimitives.AddRange(OBJParser.readOBJ("../../assets/dragon.obj", new Vector3(0, 1.5f, 3), 0.00005f, material2));
 
             floor = (new Plane(new Vector3(0, 1, 0), new Vector3(0, 0, 0), new Material("../../assets/1.jpg", 0.0f)));
             
