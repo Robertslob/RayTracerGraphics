@@ -31,6 +31,7 @@ namespace Application
         {
             this.reflection = reflection;
             this.hasPattern = true;
+            this.color = new Vector3(1, 1, 1);
             surface = new Surface(file);
         }
 
